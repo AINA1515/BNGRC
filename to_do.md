@@ -1,19 +1,19 @@
-Fonctionnalite
-    -formulaire 
+# Fonctionnalite
+    - formulaire 
         -ville
         -don
             -type de don
 
-objectif:
+# objectif:
     tableau de bord
         -liste des villes + besoins
         -dons par villes
 
-regle:
+# regle:
     -chaque besoin a un prix + quantite(prix unitaires fixe)
 
 
- BASE :( ok ): BRYAN
+#  BASE :( ok ): BRYAN
     -table
         -ville
             -nom
@@ -47,7 +47,7 @@ regle:
         -historique avec ville avec dons
 
 
-FONCTIONS : AINA
+# FONCTIONS : AINA
     -forAll:
         -CRUD
     -ville:
@@ -56,10 +56,10 @@ FONCTIONS : AINA
     -historiqueDons
     -besoinsVille
 
-DESIGN : TIANIAINA
+# DESIGN : TIANIAINA
     -getTemplates
 
-INTEGRATION : TIANIAINA
+# INTEGRATION : TIANIAINA
     -dashboard
     -formulaire
         -BESOIN
