@@ -13,7 +13,7 @@ regle:
     -chaque besoin a un prix + quantite(prix unitaires fixe)
 
 
-OK BASE :
+ BASE :( ok ): BRYAN
     -table
         -ville
             -nom
@@ -47,7 +47,7 @@ OK BASE :
         -historique avec ville avec dons
 
 
-FONCTIONS :
+FONCTIONS : AINA
     -forAll:
         -CRUD
     -ville:
@@ -56,11 +56,11 @@ FONCTIONS :
     -historiqueDons
     -besoinsVille
 
-DESIGN :
+DESIGN : TIANIAINA
     -getTemplates
 
-INTEGRATION :
-    -dashboard(statistique)
+INTEGRATION : TIANIAINA
+    -dashboard
     -formulaire
         -BESOIN
         -interface CRUD
