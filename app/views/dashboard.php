@@ -7,10 +7,10 @@
   <title>ReliefFlow</title>
 
   <!-- CSS TEMPLATE -->
-  <link rel="stylesheet" href="/assets/vendors/feather/feather.css">
-  <link rel="stylesheet" href="/assets/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="/assets/vendors/css/vendor.bundle.base.css">
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/feather/feather.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/css/vendor.bundle.base.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
 </head>
 
 <body class="with-welcome-text">
@@ -35,7 +35,7 @@
         <ul class="nav">
 
           <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="<?= BASE_URL ?>/">
               <i class="mdi mdi-grid-large menu-icon"></i>
               <span class="menu-title">Dashboard</span>
             </a>
@@ -54,13 +54,13 @@
               <ul class="nav flex-column sub-menu">
 
                 <li class="nav-item">
-                  <a class="nav-link" href="/formBesoin">
+                  <a class="nav-link" href="<?= BASE_URL ?>/formBesoin">
                     Besoin
                   </a>
                 </li>
 
                 <li class="nav-item">
-                  <a class="nav-link" href="/formDons">
+                  <a class="nav-link" href="<?= BASE_URL ?>/formDons">
                     Dons
                   </a>
                 </li>
@@ -198,21 +198,21 @@
   </div>
 
   <!-- container-scroller --> <!-- plugins:js -->
-  <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/js/vendor.bundle.base.js"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script> <!-- endinject --> <!-- Plugin js for this page -->
-  <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/chart.js/chart.umd.js"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/progressbar.js/progressbar.min.js"></script> <!-- End plugin js for this page --> <!-- inject:js -->
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/off-canvas.js"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/template.js"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/settings.js"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/hoverable-collapse.js"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/todolist.js"></script> <!-- endinject --> <!-- Custom js for this page-->
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/jquery.cookie.js" type="text/javascript"></script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/dashboard.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/js/vendor.bundle.base.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script> <!-- endinject --> <!-- Plugin js for this page -->
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/chart.js/chart.umd.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/progressbar.js/progressbar.min.js"></script> <!-- End plugin js for this page --> <!-- inject:js -->
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/off-canvas.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/template.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/settings.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/hoverable-collapse.js"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/todolist.js"></script> <!-- endinject --> <!-- Custom js for this page-->
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/jquery.cookie.js" type="text/javascript"></script>
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/dashboard.js"></script>
   <script nonce="<?= $csp_nonce ?>">
     var sinistreChartData = <?= json_encode($sinistreChartData ?? []) ?>;
   </script>
-  <script nonce="<?= $csp_nonce ?>" src="/assets/js/my_script.js"></script> <!-- <script nonce = "<?= $csp_nonce ?>" src="/assets/js/Chart.roundedBarCharts.js"></script> --> <!-- End custom js for this page-->
+  <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/my_script.js"></script> <!-- <script nonce = "<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/Chart.roundedBarCharts.js"></script> --> <!-- End custom js for this page-->
 </body>
 
 </html>

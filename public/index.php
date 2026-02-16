@@ -25,4 +25,14 @@
    by Dick Williams, rjw1@tyrell.net
 */
 $ds = DIRECTORY_SEPARATOR;
+
+define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'));
+
+define('ROOT_PATH', rtrim(dirname(__DIR__), '/'));
+
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require(__DIR__. $ds . '..' . $ds . 'app' . $ds . 'config' . $ds . 'bootstrap.php');
