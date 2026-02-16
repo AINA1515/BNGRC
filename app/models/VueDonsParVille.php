@@ -15,7 +15,6 @@ class VueDonsParVille
         $query = "SELECT * FROM vue_dons_par_ville";
         return Flight::db()->query($query)->fetchAll();
     }
-
 }
 
 ?>

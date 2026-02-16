@@ -19,5 +19,4 @@ class VueDonsParVilleController
         $view = VueDonsParVille::getView();
         return $view;
     }
-  
 }
