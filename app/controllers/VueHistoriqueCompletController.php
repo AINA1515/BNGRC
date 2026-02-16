@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use flight\Engine;
-use app\models\VueHistoriqueComplet;
+use app\models\VueHistoriqueCompletModel;
 
 class VueHistoriqueCompletController 
 {
@@ -16,12 +16,12 @@ class VueHistoriqueCompletController
 
     public function getAllHistorique()
     {
-        $view = VueHistoriqueComplet::getView();
+        $view = VueHistoriqueCompletModel::getView();
         return $view;
     }
 
     public function getHistoriquebyTypeDon($typeDon){
-    $view = VueHistoriqueComplet::getHistoriquebyTypeDon($typeDon);
+    $view = VueHistoriqueCompletModel::getHistoriquebyTypeDon($typeDon);
     if($view){
     return $view;
     }else{
@@ -30,7 +30,7 @@ class VueHistoriqueCompletController
     }
 
     public function getHistoriqueByNomDon($nomDon){
-        $view = VueHistoriqueComplet::getHistoriqueByNomDon($nomDon);
+        $view = VueHistoriqueCompletModel::getHistoriqueByNomDon($nomDon);
         if($view){
     return $view;
     }else{
@@ -39,7 +39,7 @@ class VueHistoriqueCompletController
     }
     
     public function getHistoriqueByNomVille($nomVille){
-        $view = VueHistoriqueComplet::getHistoriqueByNomVille($nomVille);
+        $view = VueHistoriqueCompletModel::getHistoriqueByNomVille($nomVille);
         if($view){
     return $view;
     }else{
