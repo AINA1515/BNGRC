@@ -122,7 +122,7 @@
                                         <th>Ville</th>
                                         <th>Besoin</th>
                                         <th>Quantite</th>
-                                        <th>P.U</th>
+                                        <th>P.U.</th>
                                       </tr>
                                     </thead>
                                     <tbody>
