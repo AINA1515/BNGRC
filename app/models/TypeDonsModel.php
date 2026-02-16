@@ -13,7 +13,7 @@ class TypeDonsModel
      */
     public static function getAllTypes()
     {
-        $query = "SELECT * FROM type_dons";
+        $query = "SELECT * FROM typeDons";
         return Flight::db()->query($query)->fetchAll();
     }
 
@@ -25,7 +25,7 @@ class TypeDonsModel
      */
     public static function getTypeById($id)
     {
-        $query = "SELECT * FROM type_dons WHERE id = :id";
+        $query = "SELECT * FROM typeDons WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->execute();
@@ -40,7 +40,7 @@ class TypeDonsModel
      */
     public static function getTypeByName($name)
     {
-        $query = "SELECT * FROM type_dons WHERE nom = :name";
+        $query = "SELECT * FROM typeDons WHERE nom = :name";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
         $stmt->execute();
@@ -54,7 +54,7 @@ class TypeDonsModel
      */
     public static function addType($name)
     {
-        $query = "INSERT INTO type_dons (nom) VALUES (:name)";
+        $query = "INSERT INTO typeDons (nom) VALUES (:name)";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
         return $stmt->execute();
@@ -68,7 +68,7 @@ class TypeDonsModel
      */
     public static function updateType($id, $name)
     {
-        $query = "UPDATE type_dons SET nom = :name WHERE id = :id";
+        $query = "UPDATE typeDons SET nom = :name WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
@@ -83,7 +83,7 @@ class TypeDonsModel
      */
     public static function deleteType($id)
     {
-        $query = "DELETE FROM type_dons WHERE id = :id";
+        $query = "DELETE FROM typeDons WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         return $stmt->execute();

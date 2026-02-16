@@ -66,25 +66,33 @@
             <div class="col-lg-6">
               <div class="card">
                 <div class="card-body">
-                  <h4 class="card-title">Ajouter un Besoin Ville</h4>
-                  <form action="/besoinVille/add" method="POST">
-                    <div class="form-group">
-                      <label for="ville">Ville</label>
-                      <input type="text" class="form-control" id="ville" name="ville" required>
+                  <h4 class="card-title">Créer des Dons</h4>
+                  <form action="/dons/add-multiple" method="POST" id="multiDonsForm">
+                    <div id="donRows">
+                      <div class="don-row mb-3 row">
+                        <div class="col-6">
+                          <label>Nom du don</label>
+                          <input type="text" name="nom[]" class="form-control" required>
+                        </div>
+                        <div class="col-3">
+                          <label>Type</label>
+                          <select name="type[]" class="form-control" required>
+                            <option value="">-- Choisir un type --</option>
+                            <?php if (!empty($types)) { foreach ($types as $t) { ?>
+                              <option value="<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['nom']) ?></option>
+                            <?php } } ?>
+                          </select>
+                        </div>
+                        <div class="col-3">
+                          <label>Quantité</label>
+                          <input type="number" name="quantite[]" class="form-control" required>
+                        </div>
+                      </div>
                     </div>
-                    <div class="form-group">
-                      <label for="besoin">Besoin</label>
-                      <input type="text" class="form-control" id="besoin" name="besoin" required>
+                    <div class="d-flex gap-2">
+                      <button type="button" class="btn btn-secondary" id="addDonRow">Ajouter un don</button>
+                      <button type="submit" class="btn btn-primary">Créer les dons</button>
                     </div>
-                    <div class="form-group">
-                      <label for="quantite">Quantité</label>
-                      <input type="number" class="form-control" id="quantite" name="quantite" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="pu">Prix Unitaire</label>
-                      <input type="number" class="form-control" id="pu" name="pu" step="0.01" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">Ajouter</button>
                   </form>
                 </div>
               </div>
@@ -297,6 +305,18 @@
     var sinistreChartData = <?= json_encode($sinistreChartData ?? []) ?>;
   </script>
   <script nonce="<?= $csp_nonce ?>" src="/assets/js/my_script.js"></script>
+  <script nonce="<?= $csp_nonce ?>">
+    (function(){
+      const addBtn = document.getElementById('addDonRow');
+      const rowsContainer = document.getElementById('donRows');
+      addBtn && addBtn.addEventListener('click', function(){
+        const row = document.querySelector('.don-row').cloneNode(true);
+        row.querySelectorAll('input').forEach(i=>i.value='');
+        row.querySelectorAll('select').forEach(s=>{ if (s.options.length>0) s.selectedIndex=0; });
+        rowsContainer.appendChild(row);
+      });
+    })();
+  </script>
   <!-- <script nonce = "<?= $csp_nonce ?>" src="/assets/js/Chart.roundedBarCharts.js"></script> -->
   <!-- End custom js for this page-->
 </body>

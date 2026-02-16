@@ -101,24 +101,70 @@
                                                                     <div class="card">
                                                                         <div class="card-body">
                                                                             <h4 class="card-title">Ajouter un Besoin Ville</h4>
-                                                                            <form action="/besoinVille/add" method="POST">
+                                                                            <?php
+                                                                                $inserted = isset($_GET['inserted']) ? (int)$_GET['inserted'] : null;
+                                                                                $skipped = isset($_GET['skipped']) ? (int)$_GET['skipped'] : null;
+                                                                                $error = isset($_GET['error']) ? $_GET['error'] : null;
+                                                                                if ($inserted !== null || $skipped !== null || $error) {
+                                                                                    echo '<div class="mb-3">';
+                                                                                    if ($error) {
+                                                                                        echo '<div class="alert alert-danger">Erreur: ' . htmlspecialchars($error) . '</div>';
+                                                                                    }
+                                                                                    if ($inserted !== null) {
+                                                                                        echo '<div class="alert alert-success">Insérés: ' . $inserted . '</div>';
+                                                                                    }
+                                                                                    if ($skipped !== null && $skipped > 0) {
+                                                                                        echo '<div class="alert alert-warning">Ignorés: ' . $skipped . ' (voir logs pour détails)</div>';
+                                                                                        // show last log lines for quick debug
+                                                                                        $logFile = '/tmp/besoin_insert.log';
+                                                                                        if (file_exists($logFile)) {
+                                                                                            $lines = @file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+                                                                                            $last = array_slice($lines, -30);
+                                                                                            echo '<pre style="max-height:300px;overflow:auto;background:#f8f9fa;padding:10px;border:1px solid #ddd;">' . htmlspecialchars(implode("\n", $last)) . '</pre>';
+                                                                                        } else {
+                                                                                            echo '<div class="small text-muted">Log file not found: ' . htmlspecialchars($logFile) . '</div>';
+                                                                                        }
+                                                                                    }
+                                                                                    echo '</div>';
+                                                                                }
+                                                                            ?>
+                                                                            <form action="/besoinVille/add-multiple" method="POST" id="multiBesoinForm">
                                                                                 <div class="form-group">
                                                                                     <label for="ville">Ville</label>
-                                                                                    <input type="text" class="form-control" id="ville" name="ville" required>
+                                                                                    <select class="form-control" id="ville" name="ville" required>
+                                                                                        <option value="">-- Choisir une ville --</option>
+                                                                                        <?php if (!empty($villes)) { foreach ($villes as $v) { ?>
+                                                                                            <option value="<?= htmlspecialchars($v['id']) ?>"><?= htmlspecialchars($v['nom']) ?></option>
+                                                                                        <?php } } ?>
+                                                                                    </select>
                                                                                 </div>
-                                                                                <div class="form-group">
-                                                                                    <label for="besoin">Besoin</label>
-                                                                                    <input type="text" class="form-control" id="besoin" name="besoin" required>
+
+                                                                                <div id="besoinRows">
+                                                                                    <div class="besoin-row mb-3 row">
+                                                                                        <div class="col-6">
+                                                                                            <label>Don</label>
+                                                                                            <select name="don[]" class="form-control" required>
+                                                                                                <option value="">-- Choisir un don --</option>
+                                                                                                <?php if (!empty($donsAll)) { foreach ($donsAll as $d) { ?>
+                                                                                                    <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nom']) ?></option>
+                                                                                                <?php } } ?>
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="col-3">
+                                                                                            <label>Quantité</label>
+                                                                                            <input type="number" name="quantite[]" class="form-control" required>
+                                                                                        </div>
+                                                                                        <div class="col-3">
+                                                                                            <label>P.U</label>
+                                                                                            <input type="number" step="0.01" name="pu[]" class="form-control" required>
+                                                                                        </div>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div class="form-group">
-                                                                                    <label for="quantite">Quantité</label>
-                                                                                    <input type="number" class="form-control" id="quantite" name="quantite" required>
+
+                                                                                <div class="d-flex gap-2">
+                                                                                    <button type="button" class="btn btn-secondary" id="addBesoinRow">Ajouter un don</button>
+                                                                                    <button type="submit" class="btn btn-primary">Enregistrer les besoins</button>
                                                                                 </div>
-                                                                                <div class="form-group">
-                                                                                    <label for="pu">Prix Unitaire</label>
-                                                                                    <input type="number" class="form-control" id="pu" name="pu" step="0.01" required>
-                                                                                </div>
-                                                                                <button type="submit" class="btn btn-primary mt-3">Ajouter</button>
                                                                             </form>
                                                                         </div>
                                                                     </div>
@@ -175,6 +221,19 @@
         var sinistreChartData = <?= json_encode($sinistreChartData ?? []) ?>;
     </script>
     <script nonce="<?= $csp_nonce ?>" src="/assets/js/my_script.js"></script>
+    <script nonce="<?= $csp_nonce ?>">
+        (function(){
+            const addBtn = document.getElementById('addBesoinRow');
+            const rowsContainer = document.getElementById('besoinRows');
+            addBtn && addBtn.addEventListener('click', function(){
+                const row = document.querySelector('.besoin-row').cloneNode(true);
+                // clear values
+                row.querySelectorAll('input').forEach(i=>i.value='');
+                row.querySelectorAll('select').forEach(s=>{ if (s.options.length>0) s.selectedIndex=0; });
+                rowsContainer.appendChild(row);
+            });
+        })();
+    </script>
     <!-- <script nonce = "<?= $csp_nonce ?>" src="/assets/js/Chart.roundedBarCharts.js"></script> -->
     <!-- End custom js for this page-->
 </body>

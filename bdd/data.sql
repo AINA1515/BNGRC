@@ -11,14 +11,20 @@ insert into typeDons (nom) values
 ('Vêtements'),
 ('Autres');
 
-insert into dons (idTypeDons, nom) values
-(1, 'Riz'),
-(2, 'Haricot'),
-(3, 'Eau'),
-(4, 'Vêtements');
+insert into dons (idTypeDons, nom, quantite, prixUnitaire) values
+(1, 'Riz', 100, 50.00),
+(2, 'Haricot', 200, 30.00),
+(3, 'Eau', 150, 20.00),
+(4, 'Vêtements', 300, 15.00);
 
-insert into besoinsVille (idVille, idDons, idTypeDons, quantite, prixUnitaire) values
-(1, 1, 1, 100, 50.00),
-(2, 2, 2, 200, 30.00),
-(3, 3, 3, 150, 20.00),
-(4, 4, 4, 300, 15.00);
+insert into besoinsVille (idVille, idDons, quantite, prixUnitaire) values
+(1, 1, 100, 50.00),
+(2, 2, 200, 30.00),
+(3, 3, 150, 20.00),
+(4, 4, 300, 15.00);
+
+insert into historiqueDons (idDons, date_, idVille) values
+(1, '2023-10-01 10:00:00', 1),
+(2, '2023-10-02 11:00:00', 2),
+(3, '2023-10-03 12:00:00', 3),
+(4, '2023-10-04 13:00:00', null);

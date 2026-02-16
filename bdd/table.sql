@@ -1,3 +1,4 @@
+drop database if exists BNGRC;
 create database BNGRC;
 use BNGRC;
 
@@ -13,7 +14,9 @@ create table ville(
 create table dons(
     id int primary key auto_increment,
     idTypeDons int,
-    nom varchar(50) 
+    nom varchar(50),
+    quantite int,
+    prixUnitaire decimal(6,2)
 );
 
 create table typeDons(
@@ -32,7 +35,6 @@ create table besoinsVille(
     id int primary key auto_increment,
     idVille int,
     idDons int,
-    idTypeDons int,
     quantite int,
     prixUnitaire decimal(6,2)
 );
@@ -91,7 +93,6 @@ add foreign key (idTypeDons) references typeDons(id);
 
 alter table besoinsVille
 add foreign key (idVille) references ville(id),
-add foreign key (idDons) references dons(id),
-add foreign key (idTypeDons) references typeDons(id);
+add foreign key (idDons) references dons(id);
 
 

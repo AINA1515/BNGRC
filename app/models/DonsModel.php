@@ -15,7 +15,7 @@ class DonsModel
     {
         // Example query, replace with your actual database logic
         $query = "SELECT * FROM dons";
-        return Flight::db()->query($query)->fetchAll();
+        return Flight::db()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -30,7 +30,7 @@ class DonsModel
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetch();
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
     public static function getDonationByName($name)
@@ -39,7 +39,7 @@ class DonsModel
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
         $stmt->execute();
-        return $stmt->fetch();
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
     public static function getDonationsByIdType($idType)
@@ -48,7 +48,7 @@ class DonsModel
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':idType', $idType, \PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
     public static function addDonation($name,$idTypeDons)
     {
@@ -75,5 +75,50 @@ class DonsModel
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         return $stmt->execute();
+    }
+
+    /**
+     * Insert multiple donations in one transaction.
+     * Arrays must be same length and values aligned by index.
+     * Returns array with counts: ['inserted' => n, 'failed' => m]
+     */
+    public static function addMultiple(array $noms, array $types, array $quantites)
+    {
+        $count = min(count($noms), count($types), count($quantites));
+        $inserted = 0;
+        $failed = 0;
+        $skipped = 0;
+        $db = Flight::db();
+        try {
+            $db->beginTransaction();
+            $query = "INSERT INTO dons (nom, idTypeDons, quantite) VALUES (:nom, :idTypeDons, :quantite)";
+            $stmt = $db->prepare($query);
+            for ($i = 0; $i < $count; $i++) {
+                $nom = trim($noms[$i]);
+                $type = isset($types[$i]) ? (int)$types[$i] : 0;
+                $qte = isset($quantites[$i]) ? (int)$quantites[$i] : 0;
+                // skip entries with no valid type to avoid FK errors
+                if ($type <= 0) {
+                    $skipped++;
+                    continue;
+                }
+
+                $params = [
+                    ':nom' => $nom,
+                    ':idTypeDons' => $type,
+                    ':quantite' => $qte
+                ];
+                if ($stmt->execute($params)) {
+                    $inserted++;
+                } else {
+                    $failed++;
+                }
+            }
+            $db->commit();
+        } catch (\Exception $e) {
+            $db->rollBack();
+            return ['inserted' => $inserted, 'failed' => $failed, 'skipped' => $skipped, 'error' => $e->getMessage()];
+        }
+        return ['inserted' => $inserted, 'failed' => $failed, 'skipped' => $skipped];
     }
 }
