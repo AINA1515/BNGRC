@@ -14,7 +14,14 @@ use flight\net\Router;
 $router->group('', function(Router $router) use ($app) {
 
 	$router->get('/', function() use ($app) {
-		$app->render('dashboard', ['csp_nonce'=>$app->get('csp_nonce')]);
+		$customChartData = [
+			'labels' => ['Ville 1', 'Ville 2', 'Ville 3', 'Ville 4 ', 'Ville 5', 'Ville 6'],
+			'data' => [1, 30, 5, 12, 10, 35]
+		];
+		$app->render('dashboard', [
+			'csp_nonce' => $app->get('csp_nonce'),
+			'sinistreChartData' => $customChartData
+		]);
 	});
 
 	$router->get('/hello-world/@name', function($name) {
