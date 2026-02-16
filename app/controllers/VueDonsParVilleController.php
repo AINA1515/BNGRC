@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace app\controllers;
 
@@ -17,10 +17,10 @@ class VueDonsParVilleController
     public function getAllDonsParVille()
     {
         $view = VueDonsParVilleModel::getView();
-    if($view){
-    return $view;
-    }else{
-        return ['status' => 'error', 'message' => 'Not found'];
-    }
+        if ($view) {
+            return $view;
+        } else {
+            return ['status' => 'error', 'message' => 'Not found'];
+        }
     }
 }
