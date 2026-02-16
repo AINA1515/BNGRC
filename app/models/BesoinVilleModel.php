@@ -1,10 +1,11 @@
 <?php
 
-namespace app\controllers;
+namespace app\models;
 
+use Flight;
 use flight\Engine;
 
-class BesoinsVille
+class BesoinVilleModel
 {
     protected Engine $app;
 
@@ -13,35 +14,35 @@ class BesoinsVille
         $this->app = $app;
     }
 
-    public function getAllBesoins()
+    public static function getAllBesoins()
     {
         $query = "SELECT * FROM besoins";
-        return $this->app->db()->query($query)->fetchAll();
+        return  Flight::db()->query($query)->fetchAll();
     }
 
-    public function getBesoinsByVille($villeId)
+    public static function getBesoinsByVille($villeId)
     {
         $query = "SELECT * FROM besoins WHERE idVille = :villeId";
-        $stmt = $this->app->db()->prepare($query);
+        $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':villeId', $villeId, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
 
-    public function getBesoinsById($id)
+    public static function getBesoinsById($id)
     {
         $query = "SELECT * FROM besoins WHERE id = :id";
-        $stmt = $this->app->db()->prepare($query);
+        $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch();
     }
 
 
-    public function addBesoin($idVille, $idDons, $idTypeDons, $quantite, $prixUnitaire)
+    public static function addBesoin($idVille, $idDons, $idTypeDons, $quantite, $prixUnitaire)
     {
         $query = "INSERT INTO besoins (idVille, idDons, idTypeDons, quantite, prixUnitaire) VALUES (:idVille, :idDons, :idTypeDons, :quantite, :prixUnitaire)";
-        $stmt = $this->app->db()->prepare($query);
+        $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':idVille', $idVille, \PDO::PARAM_INT);
         $stmt->bindParam(':idDons', $idDons, \PDO::PARAM_INT);
         $stmt->bindParam(':idTypeDons', $idTypeDons, \PDO::PARAM_INT);
@@ -50,10 +51,10 @@ class BesoinsVille
         return $stmt->execute();
     }
 
-    public function updateBesoin($id, $idVille, $idDons, $idTypeDons, $quantite, $prixUnitaire)
+    public static function updateBesoin($id, $idVille, $idDons, $idTypeDons, $quantite, $prixUnitaire)
     {
         $query = "UPDATE besoins SET idVille = :idVille, idDons = :idDons, idTypeDons = :idTypeDons, quantite = :quantite, prixUnitaire = :prixUnitaire WHERE id = :id";
-        $stmt = $this->app->db()->prepare($query);
+        $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->bindParam(':idVille', $idVille, \PDO::PARAM_INT);
         $stmt->bindParam(':idDons', $idDons, \PDO::PARAM_INT);
@@ -62,10 +63,10 @@ class BesoinsVille
         $stmt->bindParam(':prixUnitaire', $prixUnitaire, \PDO::PARAM_STR);
         return $stmt->execute();
     }
-    public function deleteBesoin($id)
+    public static function deleteBesoin($id)
     {
         $query = "DELETE FROM besoins WHERE id = :id";
-        $stmt = $this->app->db()->prepare($query);
+        $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         return $stmt->execute();
     }
