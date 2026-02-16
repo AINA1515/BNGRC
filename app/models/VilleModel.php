@@ -38,31 +38,37 @@ class VilleModel
     public static function getCityByName($name)
     {
         // Example query, replace with your actual database logic
-        $query = "SELECT * FROM ville WHERE name = :name";
+        $query = "SELECT * FROM ville WHERE nom = :name";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch();
     }
 
-    public static function addCity($name, $population)
+    public static function addCity($name, $population,$sinistre,$x,$y)
     {
         // Example query, replace with your actual database logic
-        $query = "INSERT INTO ville (name, population) VALUES (:name, :population)";
+        $query = "INSERT INTO ville (nom, nbrPopulation, sinistre, x, y) VALUES (:name, :population, :sinistre, :x, :y)";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
-        $stmt->bindParam(':population', $population, \PDO::PARAM_INT);
+        $stmt->bindParam(':nbrPopulation', $population, \PDO::PARAM_INT);
+        $stmt->bindParam(':sinistre', $sinistre, \PDO::PARAM_INT);
+        $stmt->bindParam(':x', $x, \PDO::PARAM_INT);
+        $stmt->bindParam(':y', $y, \PDO::PARAM_INT);
         return $stmt->execute();
     }
 
-    public static function updateCity($id, $name, $population)
+    public static function updateCity($id, $name, $population, $sinistre, $x, $y)
     {
         // Example query, replace with your actual database logic
-        $query = "UPDATE ville SET name = :name, population = :population WHERE id = :id";
+        $query = "UPDATE ville SET nom = :name, nbrPopulation = :population, sinistre = :sinistre, x = :x, y = :y WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
         $stmt->bindParam(':population', $population, \PDO::PARAM_INT);
+        $stmt->bindParam(':sinistre', $sinistre, \PDO::PARAM_INT);
+        $stmt->bindParam(':x', $x, \PDO::PARAM_INT);
+        $stmt->bindParam(':y', $y, \PDO::PARAM_INT);
         return $stmt->execute();
     }
 
