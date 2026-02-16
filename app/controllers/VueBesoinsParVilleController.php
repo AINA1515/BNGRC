@@ -5,7 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\VueBesoinsParVilleModel;
 
-class VueHistoriqueCompletController 
+class VueBesoinsparVilleController 
 {
     protected Engine $app;
 
@@ -25,8 +25,43 @@ class VueHistoriqueCompletController
     if($view){
     return $view;
     }else{
-        return ['status' => 'error', 'message' => 'Not found'];
+        return ['status' => 'error', 'message' => 'No Result found'];
     }
+    }
+
+    public function getByIdVilleAndTypeDon($idVille,$typeDon){
+        $view = VueBesoinsParVilleModel::getByIdVilleAndTypeDon($idVille,$typeDon);
+        if($view){
+        return $view;
+    }else{
+        return ['status' => 'error', 'message' => 'No Result found'];
+    }
+    }
+
+    public function getByIdVilleAndNomDon($idVille,$nomDon){
+        $view = VueBesoinsParVilleModel::getByIdVilleAndNomDon($idVille,$nomDon);
+     if($view){
+        return $view;
+    }else{
+        return ['status' => 'error', 'message' => 'No Result found'];
+    }   
+    }
+
+    public function getTotalMontantByVille($idVille){
+        $view = VueBesoinsParVilleModel::getTotalMontantByVille($idVille);
+        if($view){
+        return $view;
+    }else{
+        return ['status' => 'error', 'message' => 'No Result found'];
+    }   
     }
     
+    public function getQuantiteParType($idVille){
+        $view = VueBesoinsParVilleModel::getQuantiteParType($idVille);
+       if($view){
+        return $view;
+    }else{
+        return ['status' => 'error', 'message' => 'No Result found'];
+    } 
+    }
 }
