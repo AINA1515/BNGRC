@@ -18,81 +18,74 @@ class VueDonsParVilleModel
 
 
     public static function getDonParVille($idVille)
-{
-    $query = "SELECT typeDon, nomDon, dateDon
+    {
+        $query = "SELECT typeDon, nomDon, dateDon
               FROM vue_dons_par_ville
               WHERE idVille = :idVille
               ORDER BY dateDon DESC";
 
-    $stmt = Flight::db()->prepare($query);
-    $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = Flight::db()->prepare($query);
+        $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
+        $stmt->execute();
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
-public static function countDonParVille($idVille)
-{
-    $query = "SELECT COUNT(*) as total
+    public static function countDonParVille($idVille)
+    {
+        $query = "SELECT COUNT(*) as total
               FROM vue_dons_par_ville
               WHERE idVille = :idVille";
 
-    $stmt = Flight::db()->prepare($query);
-    $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = Flight::db()->prepare($query);
+        $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
+        $stmt->execute();
 
-    return $stmt->fetch(\PDO::FETCH_ASSOC);
-}
-public static function countDonParType($idVille)
-{
-    $query = "SELECT typeDon, COUNT(*) as total
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+    public static function countDonParType($idVille)
+    {
+        $query = "SELECT typeDon, COUNT(*) as total
               FROM vue_dons_par_ville
               WHERE idVille = :idVille
               GROUP BY typeDon";
 
-    $stmt = Flight::db()->prepare($query);
-    $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = Flight::db()->prepare($query);
+        $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
+        $stmt->execute();
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
-public static function getByIdVilleAndTypeDon($idVille, $typeDon)
-{
-    $query = "SELECT typeDon, nomDon, dateDon
+    public static function getByIdVilleAndTypeDon($idVille, $typeDon)
+    {
+        $query = "SELECT typeDon, nomDon, dateDon
               FROM vue_dons_par_ville
               WHERE idVille = :idVille
               AND typeDon = :typeDon
               ORDER BY dateDon DESC";
 
-    $stmt = Flight::db()->prepare($query);
-    $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
-    $stmt->bindParam(":typeDon", $typeDon, \PDO::PARAM_STR);
-    $stmt->execute();
+        $stmt = Flight::db()->prepare($query);
+        $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
+        $stmt->bindParam(":typeDon", $typeDon, \PDO::PARAM_STR);
+        $stmt->execute();
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
-public static function getByIdVilleAndNomDon($idVille, $nomDon)
-{
-    $query = "SELECT typeDon, nomDon, dateDon
+    public static function getByIdVilleAndNomDon($idVille, $nomDon)
+    {
+        $query = "SELECT typeDon, nomDon, dateDon
               FROM vue_dons_par_ville
               WHERE idVille = :idVille
               AND nomDon = :nomDon
               ORDER BY dateDon DESC";
 
-    $stmt = Flight::db()->prepare($query);
-    $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
-    $stmt->bindParam(":nomDon", $nomDon, \PDO::PARAM_STR);
-    $stmt->execute();
+        $stmt = Flight::db()->prepare($query);
+        $stmt->bindParam(":idVille", $idVille, \PDO::PARAM_INT);
+        $stmt->bindParam(":nomDon", $nomDon, \PDO::PARAM_STR);
+        $stmt->execute();
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
-
-
-
-
-
-}
-
-?>
