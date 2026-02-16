@@ -132,8 +132,8 @@
 
 
                                           <tr>
-                                            <td><?= $besoinVille['ville'] ?></td>
-                                            <td><?= $besoinVille['besoin'] ?></td>
+                                            <td><?= $besoinVille['nomVille'] ?></td>
+                                            <td><?= $besoinVille['nomDons'] ?></td>
                                             <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
                                             <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
                                           </tr>
