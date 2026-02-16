@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use flight\Engine;
-use app\models\VueDonsParVille;
+use app\models\VueDonsParVilleModel;
 
 class VueDonsParVilleController
 {
@@ -16,7 +16,11 @@ class VueDonsParVilleController
 
     public function getAllDonsParVille()
     {
-        $view = VueDonsParVille::getView();
-        return $view;
+        $view = VueDonsParVilleModel::getView();
+    if($view){
+    return $view;
+    }else{
+        return ['status' => 'error', 'message' => 'Not found'];
+    }
     }
 }

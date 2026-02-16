@@ -4,7 +4,7 @@ namespace app\models;
 
 use Flight;
 
-class VueHistoriqueComplet
+class VueHistoriqueCompletModel
 {
     /**
      *
