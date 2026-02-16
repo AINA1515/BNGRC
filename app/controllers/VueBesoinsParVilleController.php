@@ -5,7 +5,7 @@ namespace app\controllers;
 use flight\Engine;
 use app\models\VueBesoinsParVilleModel;
 
-class VueHistoriqueCompletController 
+class VueBesoinsParVilleController
 {
     protected Engine $app;
 

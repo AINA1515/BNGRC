@@ -1,7 +1,7 @@
 <?php
 
 use app\controllers\VilleController;
-use app\controllers\BesoinVilleController;
+use app\controllers\VueBesoinsParVilleController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -17,7 +17,7 @@ $router->group('', function (Router $router) use ($app) {
 	$router->get('/', function () use ($app) {
 
 		$villeController = new VilleController($app);
-		$vueBesoinVilleController = new BesoinVilleController($app);
+		$vueBesoinVilleController = new VueBesoinsParVilleController($app);
 
 		$labels = $villeController->getAllCityNames();
 		$chartData = $villeController->getAllNbrSinistre();
@@ -25,7 +25,7 @@ $router->group('', function (Router $router) use ($app) {
 
 		$customChartData = ["labels" => $labels, "data" => $chartData];
 
-		$besoinVilles = $vueBesoinVilleController->getAllBesoins();
+		$besoinVilles = $vueBesoinVilleController->getAllBesoinsParVille();
 
 
 		$app->render('dashboard', [

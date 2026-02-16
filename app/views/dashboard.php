@@ -133,9 +133,9 @@
 
                                           <tr>
                                             <td><?= $besoinVille['nomVille'] ?></td>
-                                            <td><?= $besoinVille['nomDons'] ?></td>
+                                            <td><?= $besoinVille['nomDon'] ?></td>
                                             <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
-                                            <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
+                                            <td><label class="badge badge-info"><?= $besoinVille['prixUnitaire'] ?></label></td>
                                           </tr>
                                         <?php }
                                       } else { ?>
