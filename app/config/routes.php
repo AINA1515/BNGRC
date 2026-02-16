@@ -30,6 +30,7 @@ $router->group('', function (Router $router) use ($app) {
 
 		$app->render('dashboard', [
 			'csp_nonce' => $app->get('csp_nonce'),
+
 			'sinistreChartData' => $customChartData,
 			'besoinVilles' => $besoinVilles
 		]);

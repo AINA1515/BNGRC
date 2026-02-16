@@ -30,34 +30,12 @@
 
 <body class="with-welcome-text">
   <div class="container-scroller">
-    <!-- partial:partials/_navbar.html -->
-    <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
-      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-        <div class="me-3">
-          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
-            <span class="icon-menu"></span>
-          </button>
-        </div>
-        <div>
-          <a href="/" class="navbar-brand brand-logo">ReliefFlow</a>
-
-          <a href="/" class="navbar-brand brand-logo-mini" href="/">
-            RF
-          </a>
-        </div>
-      </div>
-      <div class="navbar-menu-wrapper d-flex align-items-top">
-        <ul class="navbar-nav">
-          <li class="nav-item fw-semibold d-none d-lg-block ms-0">
-            <h1 class="welcome-text">Bonjour</h1>
-            <h3 class="welcome-sub-text">Statistiques des collectes et distributions de dons pour les sinistrés. </h3>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    <!-- partial -->
     <div class="container-fluid page-body-wrapper">
-      <!-- partial:partials/_sidebar.html -->
+      <div class="row mb-4 mt-3">
+        <div class="col-12 text-center">
+          <h2 class="fw-bold">ReliefFlow</h2>
+        </div>
+      </div>
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
           <li class="nav-item">
@@ -75,7 +53,66 @@
             </a>
             <div class="collapse" id="form-elements">
               <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="pages/forms/basic_elements.html">Formulaire d'ajout de besoin</a></li>
+                <li class="nav-item"><a class="nav-link" href="/formBesoin">Besoin</a></li>
+                <li class="nav-item"><a class="nav-link" href="/formDons">Dons</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row justify-content-center mt-5">
+            <div class="col-lg-6">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Ajouter un Besoin Ville</h4>
+                  <form action="/besoinVille/add" method="POST">
+                    <div class="form-group">
+                      <label for="ville">Ville</label>
+                      <input type="text" class="form-control" id="ville" name="ville" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="besoin">Besoin</label>
+                      <input type="text" class="form-control" id="besoin" name="besoin" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="quantite">Quantité</label>
+                      <input type="number" class="form-control" id="quantite" name="quantite" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="pu">Prix Unitaire</label>
+                      <input type="number" class="form-control" id="pu" name="pu" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Ajouter</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/">
+              <i class="mdi mdi-grid-large menu-icon"></i>
+              <span class="menu-title">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item nav-category">Navigations</li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
+              <i class="menu-icon mdi mdi-card-text-outline"></i>
+              <span class="menu-title">Forms</span>
+              <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="form-elements">
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item"><a class="nav-link" href="/formBesoin">Besoin</a></li>
+                <li class="nav-item"><a class="nav-link" href="/formDons">Dons</a></li>
               </ul>
             </div>
           </li>
@@ -125,10 +162,10 @@
 
 
                                           <tr>
-                                            <td><?= $besoinVille['nomVille'] ?></td>
-                                            <td><?= $besoinVille['nomDon'] ?></td>
+                                            <td><?= $besoinVille['ville'] ?></td>
+                                            <td><?= $besoinVille['besoin'] ?></td>
                                             <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
-                                            <td><label class="badge badge-info"><?= $besoinVille['prixUnitaire'] ?></label></td>
+                                            <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
                                           </tr>
                                         <?php }
                                       } else { ?>
