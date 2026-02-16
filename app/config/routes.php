@@ -34,19 +34,24 @@ $router->group('', function(Router $router) use ($app) {
 
 		$app->render('dashboard', [
 			'csp_nonce' => $app->get('csp_nonce'),
+
 			'sinistreChartData' => $customChartData,
+
             'besoinVilles' => $besoinVilles
 		]);
 	});
 
-	$router->get('/hello-world/@name', function($name) {
-		echo '<h1>Hello world! Oh hey '.$name.'!</h1>';
+	$router->get('/formBesoin', function() use ($app) {
+		$app->render('formBesoin', [
+            'csp_nonce' => $app->get('csp_nonce')
+        ]);
 	});
 
-	$router->group('/api', function() use ($router) {
-		$router->get('/users', [ ApiExampleController::class, 'getUsers' ]);
-		$router->get('/users/@id:[0-9]', [ ApiExampleController::class, 'getUser' ]);
-		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
+	$router->get('/formDons', function() use ($app) {
+		$app->render('formDons', [
+            'csp_nonce' => $app->get('csp_nonce')
+        ]);
 	});
+
 	
 }, [ SecurityHeadersMiddleware::class ]);
