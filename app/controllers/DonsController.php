@@ -58,4 +58,12 @@ class DonsController
             $this->app->halt(500, 'Failed to add donation');
         }
     }
+
+    /**
+     * Add multiple donations at once. Expects arrays: nom[], type[], quantite[]
+     */
+    public function addMultiple(array $noms, array $types, array $quantites)
+    {
+        return DonsModel::addMultiple($noms, $types, $quantites);
+    }
 }

@@ -20,6 +20,26 @@ class VilleController
 		return $cities;
 	}
 
+	public function getAllCityNames()
+	{
+		$cityNames = VilleModel::getAllcityName();
+		if ($cityNames) {
+			return $cityNames;
+		} else {
+			return ['status' => 'error', 'message' => 'No cities found'];
+		}
+	}
+
+	public function getAllNbrSinistre()
+	{
+		$sinistres = VilleModel::getAllNbrSinistre();
+		if ($sinistres) {
+			return $sinistres;
+		} else {
+			return ['status' => 'error', 'message' => 'No sinistres found'];
+		}
+	}
+
 	public function getCityById($id)
 	{
 		$city = VilleModel::getCityById($id);

@@ -19,6 +19,18 @@ class VilleModel
         return Flight::db()->query($query)->fetchAll();
     }
 
+    public static function getAllcityName(){
+        // Example query, replace with your actual database logic
+        $query = "SELECT nom FROM ville";
+        return Flight::db()->query($query)->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public static function getAllNbrSinistre(){
+        // Example query, replace with your actual database logic
+        $query = "SELECT nbrSinistre FROM ville";
+        return Flight::db()->query($query)->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     /**
      * Get a city by ID.
      *
