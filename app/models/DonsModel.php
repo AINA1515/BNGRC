@@ -102,13 +102,25 @@ class DonsModel
     {
         $query = "INSERT INTO dons (idModeleDons, idTypeDons, quantite, prixUnitaire, date_) VALUES (:idModeleDons, :idTypeDons, :quantite, :prixUnitaire, :date_)";
         $stmt = Flight::db()->prepare($query);
-        return $stmt->execute([
+        $params = [
             ':idModeleDons' => (int)$idModeleDons,
             ':idTypeDons' => (int)$idTypeDons,
             ':quantite' => (int)$quantite,
             ':prixUnitaire' => $prixUnitaire,
             ':date_' => $date_ ?? date('Y-m-d H:i:s')
-        ]);
+        ];
+        $ok = $stmt->execute($params);
+        if ($ok) {
+            // Update entrepot so available stock reflects this donation
+            if ($idModeleDons && (int)$quantite > 0) {
+                try {
+                    \app\models\EntrepotModel::addStock($idModeleDons, (int)$quantite);
+                } catch (\Exception $ex) {
+                    @file_put_contents('/tmp/entrepot_add_error.log', $ex->getMessage() . PHP_EOL, FILE_APPEND | LOCK_EX);
+                }
+            }
+        }
+        return $ok;
     }
 
     public static function updateDonation($id, $idModeleDons, $idTypeDons, $quantite = 0, $prixUnitaire = null, $date_ = null)
@@ -175,6 +187,15 @@ class DonsModel
                 ];
                 if ($stmt->execute($params)) {
                     $inserted++;
+                    // Also update entrepot to reflect new available stock
+                    if ($idModele && $qte > 0) {
+                        try {
+                            \app\models\EntrepotModel::addStock($idModele, $qte);
+                        } catch (\Exception $ex) {
+                            // log and continue
+                            @file_put_contents('/tmp/entrepot_add_error.log', $ex->getMessage() . PHP_EOL, FILE_APPEND | LOCK_EX);
+                        }
+                    }
                 } else {
                     $failed++;
                 }

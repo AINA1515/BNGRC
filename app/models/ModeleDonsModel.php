@@ -12,11 +12,23 @@ class ModeleDonsModel
         return Flight::db()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public static function addModele($nom, $idType)
+    /**
+     * Add a new donation model. prixUnitaire is required by the DB schema, default to 0.00 when omitted.
+     *
+     * @param string $nom
+     * @param int $idType
+     * @param float|null $prixUnitaire
+     * @return bool
+     */
+    public static function addModele($nom, $idType, $prixUnitaire = 0.00)
     {
-        $query = "INSERT INTO modeleDons (nom, idTypeDons) VALUES (:nom, :idType)";
+        $query = "INSERT INTO modeleDons (nom, prixUnitaire, idTypeDons) VALUES (:nom, :prixUnitaire, :idType)";
         $stmt = Flight::db()->prepare($query);
-        return $stmt->execute([':nom' => $nom, ':idType' => (int)$idType]);
+        return $stmt->execute([
+            ':nom' => $nom,
+            ':prixUnitaire' => $prixUnitaire === null ? 0.00 : (float)$prixUnitaire,
+            ':idType' => (int)$idType
+        ]);
     }
 
     public static function getModeleById($id)

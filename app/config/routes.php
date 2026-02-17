@@ -87,14 +87,82 @@ $router->group('', function (Router $router) use ($app) {
 		]);
 	});
 
+	// Also expose the model management page via the header link
+	$router->get('/formModelDons', function () use ($app) {
+		// Reuse the same view as /formDons which contains the "Créer un modèle de don" block
+		$types = TypeDonsModel::getAllTypes();
+		$besoinVilles = BesoinVilleModel::getBesoinsForForm();
+		$modelesAll = \app\models\ModeleDonsModel::getAllModeles();
+
+		$app->render('formModelDons', [
+			'csp_nonce' => $app->get('csp_nonce'),
+			'types' => $types,
+			'besoinVilles' => $besoinVilles,
+			'modelesAll' => $modelesAll,
+			'sinistreChartData' => []
+		]);
+	});
+
 	// Handle multiple donations from form
 	$router->post('/dons/add-multiple', function () use ($app) {
 		$data = $app->request()->data;
+		// Prefer modele[] (IDs). For backward compatibility, accept nom[] (free-text names) and convert to modele IDs.
 		$modeles = isset($data['modele']) ? $data['modele'] : [];
 		$types = isset($data['type']) ? $data['type'] : [];
 		$quantites = isset($data['quantite']) ? $data['quantite'] : [];
 		$dates = isset($data['date']) ? $data['date'] : [];
 		$prixUnitaires = isset($data['prix']) ? $data['prix'] : [];
+
+		// If the form submitted free-text names (nom[]), map them to modele IDs.
+		if (empty($modeles) && isset($data['nom'])) {
+			$noms = $data['nom'];
+			// Load existing models
+			$existing = \app\models\ModeleDonsModel::getAllModeles();
+			$nameToId = [];
+			if (is_array($existing)) {
+				foreach ($existing as $m) {
+					if (!empty($m['nom'])) $nameToId[strtolower(trim($m['nom']))] = $m['id'];
+				}
+			}
+			$modeles = [];
+			// Convert each provided name to an ID (create modele if not found)
+			foreach ($noms as $idx => $name) {
+				$nm = trim((string)$name);
+				if ($nm === '') { $modeles[] = 0; continue; }
+				$key = strtolower($nm);
+				if (isset($nameToId[$key])) {
+					$modeles[] = $nameToId[$key];
+					continue;
+				}
+				// Create new modele with the corresponding type if available
+				$idType = isset($types[$idx]) ? (int)$types[$idx] : 0;
+				$ok = \app\models\ModeleDonsModel::addModele($nm, $idType);
+				if ($ok) {
+					// get last insert id
+					$last = (int)Flight::db()->lastInsertId();
+					$modeles[] = $last;
+					// update local map to avoid duplicate inserts
+					$nameToId[$key] = $last;
+				} else {
+					$modeles[] = 0;
+				}
+			}
+		}
+
+		// Ensure types align with modele: if a modele is provided, infer its type from modeleDons
+		$maxLen = max(count((array)$modeles), count((array)$types));
+		for ($i = 0; $i < $maxLen; $i++) {
+			// normalize existing type
+			$types[$i] = isset($types[$i]) ? (int)$types[$i] : 0;
+			$modeleId = isset($modeles[$i]) ? (int)$modeles[$i] : 0;
+			if ($modeleId > 0) {
+				$modeleRow = \app\models\ModeleDonsModel::getModeleById($modeleId);
+				if ($modeleRow && isset($modeleRow['idTypeDons'])) {
+					$types[$i] = (int)$modeleRow['idTypeDons'];
+				}
+			}
+		}
+
 		$donsController = new DonsController($app);
 		$result = $donsController->addMultiple($modeles, $types, $quantites, $dates, $prixUnitaires);
 		// Redirect back with summary counts so UI can show feedback
@@ -109,11 +177,15 @@ $router->group('', function (Router $router) use ($app) {
 		$name = trim($app->request()->data->model_nom ?? '');
 		$idType = (int)($app->request()->data->model_type ?? 0);
 		if ($name === '' || $idType <= 0) {
-			$app->redirect('/formDons?model_added=0');
+			// Redirect back to the referrer or /formDons if missing
+			$ref = $_SERVER['HTTP_REFERER'] ?? '/formDons';
+			$app->redirect($ref . (strpos($ref, '?') === false ? '?' : '&') . 'model_added=0');
 			return;
 		}
-		$ok = \app\models\ModeleDonsModel::addModele($name, $idType);
-		$app->redirect('/formDons?model_added=' . ($ok ? 1 : 0));
+		$prix = $app->request()->data->model_prix ?? null;
+		$ok = \app\models\ModeleDonsModel::addModele($name, $idType, $prix);
+		$ref = $_SERVER['HTTP_REFERER'] ?? '/formDons';
+		$app->redirect($ref . (strpos($ref, '?') === false ? '?' : '&') . 'model_added=' . ($ok ? 1 : 0));
 	});
 
 	// Handle multiple besoins from form
@@ -175,6 +247,60 @@ $router->group('', function (Router $router) use ($app) {
 		$don = DonsModel::getDonationById((int)$id);
 		echo json_encode(['id' => (int)$id, 'don' => $don]);
 	});
+
+	// Distribution UI and purchase endpoint
+	$router->get('/distribution', function () use ($app) {
+		$controller = new \app\controllers\DistributionController($app);
+		$controller->index();
+	});
+
+	$router->post('/distribution/purchase', function () use ($app) {
+		$controller = new \app\controllers\DistributionController($app);
+		$controller->purchase();
+	});
+
+	// Entrepot UI and actions
+	$router->get('/entrepot', function () use ($app) {
+		$controller = new \app\controllers\EntrepotController();
+		$controller->index();
+	});
+
+	$router->post('/entrepot/add', function () use ($app) {
+		$controller = new \app\controllers\EntrepotController();
+		$controller->addStock();
+	});
+
+	$router->post('/entrepot/set', function () use ($app) {
+		$controller = new \app\controllers\EntrepotController();
+		$controller->setStock();
+	});
+
+	// Seed entrepot from current donations (admin)
+	$router->post('/entrepot/seed', function () use ($app) {
+		header('Content-Type: application/json');
+		$db = Flight::db();
+		try {
+			$db->beginTransaction();
+			$agg = \app\models\DonsModel::getAggregatedDonations();
+			$map = [];
+			foreach ($agg as $g) {
+				$map[(int)$g['idModeleDons']] = (int)$g['quantite'];
+			}
+			$modeles = \app\models\ModeleDonsModel::getAllModeles();
+			foreach ($modeles as $m) {
+				$id = (int)$m['id'];
+				$q = isset($map[$id]) ? $map[$id] : 0;
+				\app\models\EntrepotModel::setStock($id, $q);
+			}
+			$db->commit();
+			header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/entrepot'));
+			exit;
+		} catch (\Exception $e) {
+			$db->rollBack();
+			error_log('entrepot seed error: ' . $e->getMessage());
+			$app->halt(500, 'Failed to seed entrepot');
+		}
+	});
 }, [SecurityHeadersMiddleware::class]);
 
 // Route to add a new type of donation
@@ -197,6 +323,69 @@ $router->get('/simulate', function () use ($app) {
 	$mode = $_GET['mode'] ?? 'priorite';
 	$sim = BesoinVilleModel::simulateAllocation($mode);
 	echo json_encode($sim);
+});
+
+// Apply simulation: set entrepot stock to aggregated donations totals
+$router->post('/simulation/apply', function () use ($app) {
+	header('Content-Type: application/json');
+	$db = Flight::db();
+	$mode = $app->request()->data->mode ?? 'priorite';
+	try {
+		$db->beginTransaction();
+		// First, ensure entrepot contains a row for every modele with aggregated donation totals
+		$aggregated = DonsModel::getAggregatedDonations();
+		$map = [];
+		foreach ($aggregated as $g) {
+			$map[(int)$g['idModeleDons']] = (int)$g['quantite'];
+		}
+		$modeles = \app\models\ModeleDonsModel::getAllModeles();
+		foreach ($modeles as $m) {
+			$mid = (int)$m['id'];
+			$qty = isset($map[$mid]) ? $map[$mid] : 0;
+			\app\models\EntrepotModel::setStock($mid, $qty);
+		}
+
+		// Run simulation to get allocation per besoin
+		$sim = BesoinVilleModel::simulateAllocation($mode);
+		$result = $sim['result'] ?? [];
+		// For each besoin with allocation, create distribution and decrement entrepot
+		foreach ($result as $row) {
+			$alloc = (int)($row['sim_donnee'] ?? 0);
+			if ($alloc <= 0) continue;
+			$besoinId = (int)($row['id'] ?? 0);
+			// Fetch besoin to get ville, modele, prix, initial
+			$besoin = BesoinVilleModel::getBesoinsById($besoinId);
+			if (!$besoin) continue;
+			$idVille = $besoin['idVille'] ?? null;
+			$idModele = $besoin['idModeleDons'] ?? null;
+			$initial = (int)($besoin['quantite'] ?? 0);
+			$prix = $besoin['prixUnitaire'] ?? null;
+			// determine initial entrepot stock for this modele
+			$ent = \app\models\EntrepotModel::getStockByModele($idModele);
+			$initialEnt = $ent ? (int)$ent['quantite'] : 0;
+			// Create distribution record (store initial entrepot stock)
+			\app\models\DistributionModel::createDistribution([
+				'idBesoins' => $besoinId,
+				'idVille' => $idVille,
+				'date_' => date('Y-m-d H:i:s'),
+				'quantiteBesoinDepart' => $initial,
+				'quantiteBesoinRestant' => max(0, $initial - $alloc),
+				'quantiteDonsInitiale' => $initialEnt,
+				'quantiteDonsDistribue' => $alloc,
+				'prixUnitaire' => $prix
+			]);
+			// Decrement entrepot for this modele
+			if ($idModele) {
+				\app\models\EntrepotModel::removeStock($idModele, $alloc);
+			}
+		}
+		$db->commit();
+		echo json_encode(['success' => true]);
+	} catch (\Exception $e) {
+		$db->rollBack();
+		error_log('simulation apply error: ' . $e->getMessage());
+		echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+	}
 });
 
 // Render the dedicated Simulation page

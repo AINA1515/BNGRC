@@ -212,6 +212,9 @@ class BesoinVilleModel
         if (is_array($besoinsRaw)) {
             foreach ($besoinsRaw as $b) {
                 $list[] = [
+                    'id' => $b['id'] ?? null,
+                    'idVille' => $b['idVille'] ?? null,
+                    'idModeleDons' => $b['idModeleDons'] ?? null,
                     'ville' => $villeMap[$b['idVille'] ?? null] ?? ($b['nomVille'] ?? ''),
                     'besoin' => $donsMap[$b['idDons'] ?? null] ?? ($b['nomDon'] ?? ''),
                     'quantite' => $b['quantite'] ?? 0,
