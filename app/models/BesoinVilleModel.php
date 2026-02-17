@@ -24,8 +24,7 @@ class BesoinVilleModel
     {
         $query = "SELECT * FROM besoinsVille WHERE idVille = :villeId";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':villeId', $villeId, \PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute([':villeId' => (int)$villeId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -33,8 +32,7 @@ class BesoinVilleModel
     {
         $query = "SELECT * FROM besoinsVille WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute([':id' => (int)$id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
@@ -94,8 +92,7 @@ class BesoinVilleModel
         if ($db === null) $db = \Flight::db();
         $query = "DELETE FROM besoinsVille WHERE id = :id";
         $stmt = $db->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        return $stmt->execute();
+        return $stmt->execute([':id' => (int)$id]);
     }
 
     /**

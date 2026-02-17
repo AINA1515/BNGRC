@@ -27,8 +27,7 @@ class TypeDonsModel
     {
         $query = "SELECT * FROM typeDons WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute([':id' => (int)$id]);
         return $stmt->fetch();
     }
 
@@ -68,9 +67,7 @@ class TypeDonsModel
     {
         $query = "UPDATE typeDons SET nom = :name WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
-        return $stmt->execute();
+        return $stmt->execute([':id' => (int)$id, ':name' => (string)$name]);
     }
 
     /**
@@ -83,7 +80,6 @@ class TypeDonsModel
     {
         $query = "DELETE FROM typeDons WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        return $stmt->execute();
+        return $stmt->execute([':id' => (int)$id]);
     }
 }
