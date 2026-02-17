@@ -73,10 +73,11 @@ class BesoinVilleModel
         return $ok;
     }
 
-    public static function updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire)
+    public static function updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire, $db = null)
     {
+        if ($db === null) $db = \Flight::db();
         $query = "UPDATE besoinsVille SET idVille = :idVille, idModeleDons = :idModeleDons, quantite = :quantite, prixUnitaire = :prixUnitaire WHERE id = :id";
-        $stmt = Flight::db()->prepare($query);
+        $stmt = $db->prepare($query);
         $stmt->bindValue(':id', (int)$id, \PDO::PARAM_INT);
         $stmt->bindValue(':idVille', (int)$idVille, \PDO::PARAM_INT);
         $stmt->bindValue(':idModeleDons', (int)$idModeleDons, \PDO::PARAM_INT);
@@ -88,10 +89,11 @@ class BesoinVilleModel
         }
         return $stmt->execute();
     }
-    public static function deleteBesoin($id)
+    public static function deleteBesoin($id, $db = null)
     {
+        if ($db === null) $db = \Flight::db();
         $query = "DELETE FROM besoinsVille WHERE id = :id";
-        $stmt = Flight::db()->prepare($query);
+        $stmt = $db->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         return $stmt->execute();
     }

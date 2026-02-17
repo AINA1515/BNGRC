@@ -51,7 +51,10 @@ create table historiqueDons(
     id int primary key auto_increment,
     idDons int,
     date_ datetime,
-    idVille int
+    idVille int,
+    quantite int,
+    foreign key (idDons) references dons(id),
+    foreign key (idVille) references ville(id)
 );
 
 create table besoinsVille(
