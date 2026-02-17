@@ -193,3 +193,12 @@ $router->get('/simulate', function () use ($app) {
 		$sim = BesoinVilleModel::simulateAllocation();
 		echo json_encode($sim);
 });
+
+// Render the dedicated Simulation page
+$router->get('/simulation', function () use ($app) {
+	$besoinVilles = BesoinVilleModel::getEnrichedBesoinsForDashboard();
+	$app->render('simulation', [
+		'csp_nonce' => $app->get('csp_nonce'),
+		'besoinVilles' => $besoinVilles,
+	]);
+});

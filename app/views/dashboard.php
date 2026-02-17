@@ -50,6 +50,13 @@
               <i class="menu-arrow"></i>
             </a>
 
+          <li class="nav-item">
+            <a class="nav-link" href="<?= BASE_URL ?>/simulation">
+              <i class="mdi mdi-playlist-play menu-icon"></i>
+              <span class="menu-title">Simulation</span>
+            </a>
+          </li>
+
             <div class="collapse" id="formsMenu">
               <ul class="nav flex-column sub-menu">
 
@@ -101,38 +108,25 @@
 
                       <h4>Liste besoins</h4>
 
-                      <div class="d-flex justify-content-end mb-2 gap-2">
-                        <button id="simulateBtn" class="btn btn-warning">Simuler l'affectation des dons</button>
-                        <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none">Annuler la simulation</button>
-                      </div>
-
                       <table class="table table-hover">
                         <thead>
                           <tr>
                             <th>Ville</th>
                             <th>Besoin</th>
                             <th>Date</th>
-                            <th>depart(besoin)</th>
-                            <th>donation</th>
-                            <th>Restant(dons)</th>
-                            <th>Après(besoins)</th>
+                            <th>Quantité</th>
                             <th>P.U</th>
-                            <th>P.Total(besoin)</th>
+                            <th>P.Total</th>
                           </tr>
                         </thead>
 
                         <tbody>
                           <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
-                              <tr data-besoin-id="<?= htmlspecialchars($b['id'] ?? '') ?>" data-real-donnee="<?= htmlspecialchars($b['donnee']) ?>" data-real-restant="<?= htmlspecialchars($b['restant']) ?>" data-initial="<?= htmlspecialchars($b['quantite']) ?>">
+                              <tr>
                                 <td><?= htmlspecialchars($b['nomVille']) ?></td>
                                 <td><?= htmlspecialchars($b['nomDon']) ?></td>
-                                <td class="bs-date"><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
-                                <td class="bs-depart"><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
-                                <td class="bs-donnee">0</td>
-                                <td class="bs-restant"><?= htmlspecialchars(number_format((int)($b['restant'] ?? 0), 0, '.', ' ')) ?></td>
-                                <td class="bs-apres"><?php $initial = (int)($b['quantite'] ?? 0);
-                                                      $realDon = min((int)($b['donnee'] ?? 0), $initial);
-                                                      echo htmlspecialchars(number_format($initial - $realDon, 0, '.', ' ')); ?></td>
+                                <td><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
+                                <td><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
                                 <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
                                 <?php $bpu = (float)($b['prixUnitaire'] ?? 0);
                                 $btotal = $bpu * ((int)($b['quantite'] ?? 0)); ?>

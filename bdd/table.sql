@@ -2,6 +2,12 @@ drop database if exists BNGRC;
 create database BNGRC;
 use BNGRC;
 
+drop table if exists besoinsVille;
+drop table if exists historiqueDons;
+drop table if exists dons;
+drop table if exists ville;
+drop table if exists typeDons;
+
 create table ville(
     id int primary key auto_increment,
     nom varchar(50),
