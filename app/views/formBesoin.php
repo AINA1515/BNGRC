@@ -31,64 +31,11 @@
 <body class="with-welcome-text">
     <div class="container-scroller">
         <!-- partial:partials/_navbar.html -->
-        <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
-            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-                <div class="me-3">
-                    <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-bs-toggle="minimize">
-                        <span class="icon-menu"></span>
-                    </button>
-                </div>
-                <div>
-                    <a href="<?= BASE_URL ?>/" class="navbar-brand brand-logo">ReliefFlow</a>
-
-                    <a href="<?= BASE_URL ?>/" class="navbar-brand brand-logo-mini" href="<?= BASE_URL ?>/">
-                        RF
-                    </a>
-                </div>
-            </div>
-            <div class="navbar-menu-wrapper d-flex align-items-top">
-                <ul class="navbar-nav">
-                    <li class="nav-item fw-semibold d-none d-lg-block ms-0">
-                        <h1 class="welcome-text">Bonjour</h1>
-                        <h3 class="welcome-sub-text">Statistiques des collectes et distributions de dons pour les sinistrés. </h3>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <?php
+        include(ROOT_PATH . '/public/pages/header.php'); // Include the header file
+        ?>
         <!-- partial -->
-        <div class="container-fluid page-body-wrapper">
-            <!-- partial:partials/_sidebar.html -->
-            <nav class="sidebar sidebar-offcanvas" id="sidebar">
-                <ul class="nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= BASE_URL ?>/">
-                            <i class="mdi mdi-grid-large menu-icon"></i>
-                            <span class="menu-title">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item nav-category">Navigations</li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-                            <i class="menu-icon mdi mdi-card-text-outline"></i>
-                            <span class="menu-title">Forms</span>
-                            <i class="menu-arrow"></i>
-                        </a>
-                        <div class="collapse" id="form-elements">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formBesoin">Besoin</a></li>
-                                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formDons">Dons</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= BASE_URL ?>/simulation">
-                            <i class="mdi mdi-playlist-play menu-icon"></i>
-                            <span class="menu-title">Simulation</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <!-- partial -->
+
             <div class="main-panel">
                 <div class="content-wrapper">
                     <div class="row">
@@ -108,40 +55,42 @@
                                                                         <div class="card-body">
                                                                             <h4 class="card-title">Ajouter un Besoin Ville</h4>
                                                                             <?php
-                                                                                $inserted = isset($_GET['inserted']) ? (int)$_GET['inserted'] : null;
-                                                                                $skipped = isset($_GET['skipped']) ? (int)$_GET['skipped'] : null;
-                                                                                $error = isset($_GET['error']) ? $_GET['error'] : null;
-                                                                                if ($inserted !== null || $skipped !== null || $error) {
-                                                                                    echo '<div class="mb-3">';
-                                                                                    if ($error) {
-                                                                                        echo '<div class="alert alert-danger">Erreur: ' . htmlspecialchars($error) . '</div>';
-                                                                                    }
-                                                                                    if ($inserted !== null) {
-                                                                                        echo '<div class="alert alert-success">Insérés: ' . $inserted . '</div>';
-                                                                                    }
-                                                                                    if ($skipped !== null && $skipped > 0) {
-                                                                                        echo '<div class="alert alert-warning">Ignorés: ' . $skipped . ' (voir logs pour détails)</div>';
-                                                                                        // show last log lines for quick debug
-                                                                                        $logFile = '/tmp/besoin_insert.log';
-                                                                                        if (file_exists($logFile)) {
-                                                                                            $lines = @file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-                                                                                            $last = array_slice($lines, -30);
-                                                                                            echo '<pre style="max-height:300px;overflow:auto;background:#f8f9fa;padding:10px;border:1px solid #ddd;">' . htmlspecialchars(implode("\n", $last)) . '</pre>';
-                                                                                        } else {
-                                                                                            echo '<div class="small text-muted">Log file not found: ' . htmlspecialchars($logFile) . '</div>';
-                                                                                        }
-                                                                                    }
-                                                                                    echo '</div>';
+                                                                            $inserted = isset($_GET['inserted']) ? (int)$_GET['inserted'] : null;
+                                                                            $skipped = isset($_GET['skipped']) ? (int)$_GET['skipped'] : null;
+                                                                            $error = isset($_GET['error']) ? $_GET['error'] : null;
+                                                                            if ($inserted !== null || $skipped !== null || $error) {
+                                                                                echo '<div class="mb-3">';
+                                                                                if ($error) {
+                                                                                    echo '<div class="alert alert-danger">Erreur: ' . htmlspecialchars($error) . '</div>';
                                                                                 }
+                                                                                if ($inserted !== null) {
+                                                                                    echo '<div class="alert alert-success">Insérés: ' . $inserted . '</div>';
+                                                                                }
+                                                                                if ($skipped !== null && $skipped > 0) {
+                                                                                    echo '<div class="alert alert-warning">Ignorés: ' . $skipped . ' (voir logs pour détails)</div>';
+                                                                                    // show last log lines for quick debug
+                                                                                    $logFile = '/tmp/besoin_insert.log';
+                                                                                    if (file_exists($logFile)) {
+                                                                                        $lines = @file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+                                                                                        $last = array_slice($lines, -30);
+                                                                                        echo '<pre style="max-height:300px;overflow:auto;background:#f8f9fa;padding:10px;border:1px solid #ddd;">' . htmlspecialchars(implode("\n", $last)) . '</pre>';
+                                                                                    } else {
+                                                                                        echo '<div class="small text-muted">Log file not found: ' . htmlspecialchars($logFile) . '</div>';
+                                                                                    }
+                                                                                }
+                                                                                echo '</div>';
+                                                                            }
                                                                             ?>
                                                                             <form action="<?= BASE_URL ?>/besoinVille/add-multiple" method="POST" id="multiBesoinForm">
                                                                                 <div class="form-group">
                                                                                     <label for="ville">Ville</label>
                                                                                     <select class="form-control" id="ville" name="ville" required>
                                                                                         <option value="">-- Choisir une ville --</option>
-                                                                                        <?php if (!empty($villes)) { foreach ($villes as $v) { ?>
-                                                                                            <option value="<?= htmlspecialchars($v['id']) ?>"><?= htmlspecialchars($v['nom']) ?></option>
-                                                                                        <?php } } ?>
+                                                                                        <?php if (!empty($villes)) {
+                                                                                            foreach ($villes as $v) { ?>
+                                                                                                <option value="<?= htmlspecialchars($v['id']) ?>"><?= htmlspecialchars($v['nom']) ?></option>
+                                                                                        <?php }
+                                                                                        } ?>
                                                                                     </select>
                                                                                 </div>
 
@@ -149,11 +98,13 @@
                                                                                     <div class="besoin-row mb-3 row">
                                                                                         <div class="col-5">
                                                                                             <label>Don</label>
-                                                                                            <select name="don[]" class="form-control" required>
+                                                                                            <select name="modeleDon[]" class="form-control" required>
                                                                                                 <option value="">-- Choisir un don --</option>
-                                                                                                <?php if (!empty($donsAll)) { foreach ($donsAll as $d) { ?>
-                                                                                                    <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nom']) ?></option>
-                                                                                                <?php } } ?>
+                                                                                                <?php if (!empty($modelesAll)) {
+                                                                                                    foreach ($modelesAll as $m) { ?>
+                                                                                                        <option value="<?= htmlspecialchars($m['id']) ?>"><?= htmlspecialchars($m['nom']) ?></option>
+                                                                                                <?php }
+                                                                                                } ?>
                                                                                             </select>
                                                                                         </div>
                                                                                         <div class="col-2">
@@ -162,7 +113,7 @@
                                                                                         </div>
                                                                                         <div class="col-2">
                                                                                             <label>P.U</label>
-                                                                                            <input type="number" step="0.01" name="pu[]" class="form-control" required>
+                                                                                            <input type="number" step="0.01" name="pu[]" class="form-control">
                                                                                         </div>
                                                                                         <div class="col-3">
                                                                                             <label>Date</label>
@@ -203,8 +154,7 @@
                 </footer>
                 <!-- partial -->
             </div>
-            <!-- main-panel ends -->
-        </div>
+            
         <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
@@ -232,15 +182,19 @@
     </script>
     <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/my_script.js"></script>
     <script nonce="<?= $csp_nonce ?>">
-        (function(){
+        (function() {
             const addBtn = document.getElementById('addBesoinRow');
             const rowsContainer = document.getElementById('besoinRows');
-            addBtn && addBtn.addEventListener('click', function(){
+            addBtn && addBtn.addEventListener('click', function() {
                 const row = document.querySelector('.besoin-row').cloneNode(true);
                 // clear values
-                    row.querySelectorAll('input').forEach(i=>{ i.value=''; });
-                    row.querySelectorAll('input[type="date"]').forEach(d=>d.value='');
-                row.querySelectorAll('select').forEach(s=>{ if (s.options.length>0) s.selectedIndex=0; });
+                row.querySelectorAll('input').forEach(i => {
+                    i.value = '';
+                });
+                row.querySelectorAll('input[type="date"]').forEach(d => d.value = '');
+                row.querySelectorAll('select').forEach(s => {
+                    if (s.options.length > 0) s.selectedIndex = 0;
+                });
                 rowsContainer.appendChild(row);
             });
         })();

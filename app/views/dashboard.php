@@ -17,206 +17,143 @@
 
   <div class="container-scroller">
 
-    <!-- NAVBAR TOP -->
-    <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex align-items-top flex-row">
-      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
-        <button class="navbar-toggler" type="button" data-bs-toggle="minimize">
-          <span class="icon-menu"></span>
-        </button>
-        <a class="navbar-brand brand-logo ms-3">ReliefFlow</a>
-      </div>
-    </nav>
+    <?php
+    include(ROOT_PATH . '/public/pages/header.php'); // Include the header file
+    ?>
 
 
-    <div class="container-fluid page-body-wrapper">
+    <!-- MAIN PANEL -->
+    <div class="main-panel">
+      <div class="content-wrapper">
 
-      <!-- SIDEBAR -->
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-
+        <ul class="nav nav-tabs mb-3">
           <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/">
-              <i class="mdi mdi-grid-large menu-icon"></i>
-              <span class="menu-title">Dashboard</span>
-            </a>
+            <a class="nav-link active" data-bs-toggle="tab" href="#besoins">Besoins</a>
           </li>
-
-          <li class="nav-item nav-category">Gestion</li>
-
           <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#formsMenu">
-              <i class="mdi mdi-form-select menu-icon"></i>
-              <span class="menu-title">Formulaires</span>
-              <i class="menu-arrow"></i>
-            </a>
-
-          <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/simulation">
-              <i class="mdi mdi-playlist-play menu-icon"></i>
-              <span class="menu-title">Simulation</span>
-            </a>
+            <a class="nav-link" data-bs-toggle="tab" href="#dons">Dons</a>
           </li>
-
-            <div class="collapse" id="formsMenu">
-              <ul class="nav flex-column sub-menu">
-
-                <li class="nav-item">
-                  <a class="nav-link" href="<?= BASE_URL ?>/formBesoin">
-                    Besoin
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a class="nav-link" href="<?= BASE_URL ?>/formDons">
-                    Dons
-                  </a>
-                </li>
-
-              </ul>
-            </div>
-          </li>
-
         </ul>
-      </nav>
 
 
+        <div class="tab-content">
 
-      <!-- MAIN PANEL -->
-      <div class="main-panel">
-        <div class="content-wrapper">
+          <!-- TAB BESOINS -->
+          <div class="tab-pane fade show active" id="besoins">
 
-          <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#besoins">Besoins</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#dons">Dons</a>
-            </li>
-          </ul>
+            <div class="row">
 
+              <div class="col-lg-8">
+                <div class="card">
+                  <div class="card-body">
 
-          <div class="tab-content">
+                    <h4>Liste besoins</h4>
 
-            <!-- TAB BESOINS -->
-            <div class="tab-pane fade show active" id="besoins">
-
-              <div class="row">
-
-                <div class="col-lg-8">
-                  <div class="card">
-                    <div class="card-body">
-
-                      <h4>Liste besoins</h4>
-
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>Ville</th>
-                            <th>Besoin</th>
-                            <th>Date</th>
-                            <th>Quantité</th>
-                            <th>P.U</th>
-                            <th>P.Total</th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
-                              <tr>
-                                <td><?= htmlspecialchars($b['nomVille']) ?></td>
-                                <td><?= htmlspecialchars($b['nomDon']) ?></td>
-                                <td><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
-                                <td><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
-                                <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
-                                <?php $bpu = (float)($b['prixUnitaire'] ?? 0);
-                                $btotal = $bpu * ((int)($b['quantite'] ?? 0)); ?>
-                                <td class="text-end"><?= htmlspecialchars(number_format($btotal, 2, '.', ' ')) ?></td>
-                              </tr>
-                            <?php endforeach;
-                          else: ?>
-                            <tr>
-                              <td colspan="6" class="text-center">Aucune donnée</td>
-                            </tr>
-                          <?php endif; ?>
-                        </tbody>
-                      </table>
-
-                    </div>
-                  </div>
-                </div>
-
-
-                <div class="col-lg-4">
-                  <div class="card">
-                    <div class="card-body">
-                      <h4>Sinistres</h4>
-                      <canvas id="sinistreChart"></canvas>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-
-
-            <!-- TAB DONS -->
-            <div class="tab-pane fade" id="dons">
-
-              <div class="card">
-                <div class="card-body">
-
-                  <h4>Liste dons</h4>
-
-                  <div class="mb-3">
-                    <form action="<?= BASE_URL ?>/type/add" method="POST" class="d-flex gap-2 align-items-center">
-                      <input type="text" name="name" class="form-control" placeholder="Nouveau type de don" required>
-                      <button class="btn btn-sm btn-outline-primary" type="submit">Ajouter le type</button>
-                    </form>
-                  </div>
-
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Nom</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Quantité</th>
-                        <th>P.U</th>
-                        <th>P.Total</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      <?php if (!empty($dons)): foreach ($dons as $d): ?>
-                          <tr>
-                            <td><?= htmlspecialchars($d['nom']) ?></td>
-                            <td><span class="badge bg-info"><?= htmlspecialchars($d['typeDon']) ?></span></td>
-                            <td><?= htmlspecialchars($d['date_'] ?? '') ?></td>
-                            <td><?= htmlspecialchars(number_format((int)($d['quantite'] ?? 0), 0, '.', ' ')) ?></td>
-                            <td><?= htmlspecialchars(number_format((float)($d['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
-                            <?php $dpu = (float)($d['prixUnitaire'] ?? 0);
-                            $dtotal = $dpu * ((int)($d['quantite'] ?? 0)); ?>
-                            <td class="text-end"><?= htmlspecialchars(number_format($dtotal, 2, '.', ' ')) ?></td>
-                          </tr>
-                        <?php endforeach;
-                      else: ?>
+                    <table class="table table-hover">
+                      <thead>
                         <tr>
-                          <td colspan="4" class="text-center">Aucun don</td>
+                          <th>Ville</th>
+                          <th>Besoin</th>
+                          <th>Date</th>
+                          <th>Quantité</th>
+                          <th>P.U</th>
+                          <th>P.Total</th>
                         </tr>
-                      <?php endif; ?>
-                    </tbody>
-                  </table>
+                      </thead>
 
+                      <tbody>
+                        <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
+                            <tr>
+                              <td><?= htmlspecialchars($b['nomVille']) ?></td>
+                              <td><?= htmlspecialchars($b['nomDon'] ?? $b['nom'] ?? '') ?></td>
+                              <td><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
+                              <td><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
+                              <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
+                              <?php $bpu = (float)($b['prixUnitaire'] ?? 0);
+                              $btotal = $bpu * ((int)($b['quantite'] ?? 0)); ?>
+                              <td class="text-end"><?= htmlspecialchars(number_format($btotal, 2, '.', ' ')) ?></td>
+                            </tr>
+                          <?php endforeach;
+                        else: ?>
+                          <tr>
+                            <td colspan="6" class="text-center">Aucune donnée</td>
+                          </tr>
+                        <?php endif; ?>
+                      </tbody>
+                    </table>
+
+                  </div>
                 </div>
               </div>
 
+
+              <div class="col-lg-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h4>Sinistres</h4>
+                    <canvas id="sinistreChart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB DONS -->
+          <div class="tab-pane fade" id="dons">
+
+            <div class="card">
+              <div class="card-body">
+
+                <h4>Liste dons</h4>
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Type</th>
+                      <th>Date</th>
+                      <th>Quantité</th>
+                      <th>P.U</th>
+                      <th>P.Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <?php
+                    // Afficher chaque don individuellement (non agrégé)
+                    if (!empty($dons)):
+                      foreach ($dons as $d):
+                    ?>
+                        <tr>
+                          <td><?= htmlspecialchars($d['nomModele'] ?? $d['nomDon'] ?? $d['nom'] ?? '') ?></td>
+                          <td><span class="badge bg-info"><?= htmlspecialchars($d['typeDon']) ?></span></td>
+                          <td><?= htmlspecialchars($d['date_'] ?? '') ?></td>
+                          <td><?= htmlspecialchars(number_format((int)($d['quantite'] ?? 0), 0, '.', ' ')) ?></td>
+                          <td><?= htmlspecialchars(number_format((float)($d['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
+                          <?php $dpu = (float)($d['prixUnitaire'] ?? 0);
+                          $dtotal = $dpu * ((int)($d['quantite'] ?? 0)); ?>
+                          <td class="text-end"><?= htmlspecialchars(number_format($dtotal, 2, '.', ' ')) ?></td>
+                        </tr>
+                      <?php
+                      endforeach;
+                    else:
+                      ?>
+                      <tr>
+                        <td colspan="6" class="text-center">Aucun don</td>
+                      </tr>
+                    <?php endif; ?>
+                  </tbody>
+                </table>
+
+              </div>
             </div>
 
           </div>
+
         </div>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- container-scroller --> <!-- plugins:js -->

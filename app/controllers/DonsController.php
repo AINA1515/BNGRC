@@ -27,7 +27,7 @@ class DonsController
      */
     public function getAllForDashboard()
     {
-        $donsRaw = DonsModel::getAggregatedDonations();
+        $donsRaw = DonsModel::getAllDonations(); // Liste brute
         $typeMap = [];
         $types = \app\models\TypeDonsModel::getAllTypes();
         if (is_array($types)) {
@@ -36,16 +36,26 @@ class DonsController
             }
         }
 
+        // Charger les modèles de dons pour affichage
+        $modeles = \app\models\ModeleDonsModel::getAllModeles();
+        $modeleMap = [];
+        if (is_array($modeles)) {
+            foreach ($modeles as $m) {
+                $modeleMap[$m['id']] = $m['nom'];
+            }
+        }
         $dons = [];
         if (is_array($donsRaw)) {
             foreach ($donsRaw as $d) {
+                $nomModele = isset($d['idModeleDons']) ? ($modeleMap[$d['idModeleDons']] ?? '') : '';
                 $dons[] = [
                     'id' => $d['id'] ?? null,
                     'nom' => $d['nom'] ?? ($d[0] ?? ''),
                     'typeDon' => $typeMap[$d['idTypeDons'] ?? ($d[1] ?? null)] ?? '',
                     'quantite' => $d['quantite'] ?? ($d['qte'] ?? null),
                     'prixUnitaire' => $d['prixUnitaire'] ?? ($d['prix_unitaire'] ?? null),
-                    'date_' => $d['date_'] ?? null
+                    'date_' => $d['date_'] ?? null,
+                    'nomModele' => $nomModele
                 ];
             }
         }
@@ -64,7 +74,7 @@ class DonsController
 
     public function getDonationByName($name)
     {
-        $donation = DonsModel::getDonationByName($name);
+        $donation = DonsModel::getDonationByModelName($name);
         if ($donation) {
             return $donation;
         } else {
