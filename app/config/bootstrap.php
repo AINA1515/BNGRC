@@ -40,6 +40,24 @@ $config = require('config.php');
  */ 
 require('services.php');
 
+// Define constants for use in views
+if (!defined('BASE_URL')) {
+	// Try to get from config, otherwise calculate from SCRIPT_NAME
+	$baseUrl = $app->get('flight.base_url');
+	if (empty($baseUrl) || $baseUrl === '/') {
+		// Calculate from SCRIPT_NAME to handle subdirectories
+		$scriptName = dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php');
+		$baseUrl = ($scriptName === '\\') ? '/' : $scriptName;
+		if ($baseUrl !== '/' && substr($baseUrl, -1) !== '/') {
+			$baseUrl .= '/';
+		}
+	}
+	define('BASE_URL', $baseUrl);
+}
+if (!defined('ROOT_PATH')) {
+	define('ROOT_PATH', __DIR__ . $ds . '..' . $ds . '..');
+}
+
 // Whip out the ol' router and we'll pass that to the routes file
 $router = $app->router();
 

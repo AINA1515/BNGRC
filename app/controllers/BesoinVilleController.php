@@ -168,7 +168,7 @@ class BesoinVilleController
         }
         @file_put_contents('/tmp/apply_simulation.log', date('c') . " -- END --\n", FILE_APPEND | LOCK_EX);
 
-        Flight::redirect('/');
+        Flight::redirect(BASE_URL.'/');
     }
     
 }

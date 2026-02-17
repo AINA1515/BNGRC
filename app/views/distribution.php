@@ -36,7 +36,7 @@
               <?php } elseif (!empty($_GET['purchase']) && $_GET['purchase'] === 'ok') { ?>
                 <div class="alert alert-success">✓ Achat effectué avec succès.</div>
               <?php } ?>
-              
+
               <div class="alert alert-info">
                 <strong>💰 Argent disponible :</strong> <?= number_format((float)($availableMoney ?? 0), 2) ?> €
               </div>
@@ -56,12 +56,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <?php 
+                  <?php
                   $unsatisfiedCount = 0;
                   if (!empty($besoins)) {
-                    foreach ($besoins as $b) { 
+                    foreach ($besoins as $b) {
                       $remaining = (int)($b['quantite'] ?? 0);
-                      
+
                       // Only show unsatisfied besoins (quantite > 0)
                       if ($remaining > 0) {
                         $unsatisfiedCount++;
@@ -70,7 +70,7 @@
                         $besoinId = (int)($b['id'] ?? 0);
                         $idVille = (int)($b['idVille'] ?? 0);
                         $idModele = (int)($b['idModeleDons'] ?? 0);
-                        
+
                         // Get ville name
                         $villeName = $b['nomVille'] ?? '';
                         if (empty($villeName)) {
@@ -82,7 +82,7 @@
                             }
                           }
                         }
-                        
+
                         // Get modele name
                         $modeleName = $b['nomDon'] ?? '';
                         if (empty($modeleName)) {
@@ -94,23 +94,23 @@
                           }
                         }
                   ?>
-                      <tr>
-                        <td><?= $besoinId ?></td>
-                        <td><?= $b['date_'] ?? '' ?></td>
-                        <td><strong><?= htmlspecialchars($villeName) ?></strong></td>
-                        <td><?= htmlspecialchars($modeleName) ?></td>
-                        <td><?= number_format($pu, 2) ?> €</td>
-                        <td><span class="badge bg-warning"><?= $remaining ?></span></td>
-                        <td><?= number_format($totalCost, 2) ?> €</td>
-                        <td>
-                          <form action="<?= BASE_URL ?>/distribution/purchase" method="POST" class="d-flex gap-1 flex-wrap">
-                            <input type="hidden" name="besoinId" value="<?= $besoinId ?>">
-                            <input type="number" name="quantiteToBuy" min="1" max="<?= $remaining ?>" value="<?= $remaining ?>" class="form-control form-control-sm" style="width:70px" required title="Quantité à acheter">
-                            <input type="number" step="0.1" name="pourcentageAchat" class="form-control form-control-sm" placeholder="% frais" style="width:70px" title="Pourcentage de frais">
-                            <button class="btn btn-sm btn-success" type="submit">Acheter</button>
-                          </form>
-                        </td>
-                      </tr>
+                        <tr>
+                          <td><?= $besoinId ?></td>
+                          <td><?= $b['date_'] ?? '' ?></td>
+                          <td><strong><?= htmlspecialchars($villeName) ?></strong></td>
+                          <td><?= htmlspecialchars($modeleName) ?></td>
+                          <td><?= number_format($pu, 2) ?> €</td>
+                          <td><span class="badge bg-warning"><?= $remaining ?></span></td>
+                          <td><?= number_format($totalCost, 2) ?> €</td>
+                          <td>
+                            <form action="<?= BASE_URL ?>/distribution/purchase" method="POST" class="d-flex gap-1 flex-wrap">
+                              <input type="hidden" name="besoinId" value="<?= $besoinId ?>">
+                              <input type="number" name="quantiteToBuy" min="1" max="<?= $remaining ?>" value="<?= $remaining ?>" class="form-control form-control-sm" style="width:70px" required title="Quantité à acheter">
+                              <input type="number" step="0.1" name="pourcentageAchat" class="form-control form-control-sm" placeholder="% frais" style="width:70px" title="Pourcentage de frais">
+                              <button class="btn btn-sm btn-success" type="submit">Acheter</button>
+                            </form>
+                          </td>
+                        </tr>
                     <?php }
                     }
                   }
@@ -138,7 +138,7 @@
                 </thead>
                 <tbody>
                   <?php if (!empty($distributions)) {
-                    foreach ($distributions as $d) { 
+                    foreach ($distributions as $d) {
                       // Only show if it's NOT fully satisfied
                       $currentRestant = null;
                       if (!empty($besoins) && isset($d['idBesoins'])) {
@@ -150,18 +150,18 @@
                         }
                       }
                       // Show in history if it has been distributed
-                      if (((int)($d['quantiteDonsDistribue'] ?? 0) > 0)) { 
+                      if (((int)($d['quantiteDonsDistribue'] ?? 0) > 0)) {
                   ?>
-                      <tr class="table-info">
-                        <td><?= (int)$d['id'] ?></td>
-                        <td><?= $d['date_'] ?></td>
-                        <td><?= htmlspecialchars($d['villeNom'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($d['modeleNom'] ?? '') ?></td>
-                        <td><?= (int)($d['quantiteBesoinDepart'] ?? 0) ?></td>
-                        <td><?= ($currentRestant !== null) ? $currentRestant : (int)($d['quantiteBesoinRestant'] ?? 0) ?></td>
-                        <td><strong><?= (int)($d['quantiteDonsDistribue'] ?? 0) ?></strong></td>
-                        <td><?= (int)($d['quantiteDonsInitiale'] ?? 0) ?></td>
-                      </tr>
+                        <tr class="table-info">
+                          <td><?= (int)$d['id'] ?></td>
+                          <td><?= $d['date_'] ?></td>
+                          <td><?= htmlspecialchars($d['villeNom'] ?? '') ?></td>
+                          <td><?= htmlspecialchars($d['modeleNom'] ?? '') ?></td>
+                          <td><?= (int)($d['quantiteBesoinDepart'] ?? 0) ?></td>
+                          <td><?= ($currentRestant !== null) ? $currentRestant : (int)($d['quantiteBesoinRestant'] ?? 0) ?></td>
+                          <td><strong><?= (int)($d['quantiteDonsDistribue'] ?? 0) ?></strong></td>
+                          <td><?= (int)($d['quantiteDonsInitiale'] ?? 0) ?></td>
+                        </tr>
                     <?php }
                     }
                   } else { ?>
