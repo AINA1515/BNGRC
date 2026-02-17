@@ -44,7 +44,8 @@ class DonsController
                     'nom' => $d['nom'] ?? ($d[0] ?? ''),
                     'typeDon' => $typeMap[$d['idTypeDons'] ?? ($d[1] ?? null)] ?? '',
                     'quantite' => $d['quantite'] ?? ($d['qte'] ?? null),
-                    'prixUnitaire' => $d['prixUnitaire'] ?? ($d['prix_unitaire'] ?? null)
+                    'prixUnitaire' => $d['prixUnitaire'] ?? ($d['prix_unitaire'] ?? null),
+                    'date_' => $d['date_'] ?? null
                 ];
             }
         }
@@ -95,6 +96,8 @@ class DonsController
      */
     public function addMultiple(array $noms, array $types, array $quantites)
     {
-        return DonsModel::addMultiple($noms, $types, $quantites);
+        // collect dates from request if present
+        $dates = $_POST['date'] ?? [];
+        return DonsModel::addMultiple($noms, $types, $quantites, $dates);
     }
 }

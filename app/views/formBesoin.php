@@ -141,7 +141,7 @@
 
                                                                                 <div id="besoinRows">
                                                                                     <div class="besoin-row mb-3 row">
-                                                                                        <div class="col-6">
+                                                                                        <div class="col-5">
                                                                                             <label>Don</label>
                                                                                             <select name="don[]" class="form-control" required>
                                                                                                 <option value="">-- Choisir un don --</option>
@@ -150,13 +150,17 @@
                                                                                                 <?php } } ?>
                                                                                             </select>
                                                                                         </div>
-                                                                                        <div class="col-3">
+                                                                                        <div class="col-2">
                                                                                             <label>Quantité</label>
                                                                                             <input type="number" name="quantite[]" class="form-control" required>
                                                                                         </div>
-                                                                                        <div class="col-3">
+                                                                                        <div class="col-2">
                                                                                             <label>P.U</label>
                                                                                             <input type="number" step="0.01" name="pu[]" class="form-control" required>
+                                                                                        </div>
+                                                                                        <div class="col-3">
+                                                                                            <label>Date</label>
+                                                                                            <input type="date" name="date[]" class="form-control" required>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -228,7 +232,8 @@
             addBtn && addBtn.addEventListener('click', function(){
                 const row = document.querySelector('.besoin-row').cloneNode(true);
                 // clear values
-                row.querySelectorAll('input').forEach(i=>i.value='');
+                    row.querySelectorAll('input').forEach(i=>{ i.value=''; });
+                    row.querySelectorAll('input[type="date"]').forEach(d=>d.value='');
                 row.querySelectorAll('select').forEach(s=>{ if (s.options.length>0) s.selectedIndex=0; });
                 rowsContainer.appendChild(row);
             });

@@ -17,6 +17,11 @@ use flight\net\Router;
  * @var Engine $app
  */
 
+// Ensure $app is available in this file scope (some environments inject it before including routes)
+if (!isset($app)) {
+	$app = \Flight::get('app') ?? null;
+}
+
 // This wraps all routes in the group with the SecurityHeadersMiddleware
 $router->group('', function (Router $router) use ($app) {
 
@@ -85,6 +90,7 @@ $router->group('', function (Router $router) use ($app) {
 		$noms = isset($data['nom']) ? $data['nom'] : [];
 		$types = isset($data['type']) ? $data['type'] : [];
 		$quantites = isset($data['quantite']) ? $data['quantite'] : [];
+		$dates = isset($data['date']) ? $data['date'] : [];
 		$donsController = new DonsController($app);
 		$result = $donsController->addMultiple($noms, $types, $quantites);
 		// Redirect back with summary counts so UI can show feedback
@@ -98,9 +104,10 @@ $router->group('', function (Router $router) use ($app) {
 	$router->post('/besoinVille/add-multiple', function () use ($app) {
 		$data = $app->request()->data;
 		$ville = isset($data['ville']) ? $data['ville'] : null;
-		$dons = isset($data['don']) ? $data['don'] : [];
-		$quantites = isset($data['quantite']) ? $data['quantite'] : [];
-		$pus = isset($data['pu']) ? $data['pu'] : [];
+	$dons = isset($data['don']) ? $data['don'] : [];
+	$quantites = isset($data['quantite']) ? $data['quantite'] : [];
+	$pus = isset($data['pu']) ? $data['pu'] : [];
+	$dates = isset($data['date']) ? $data['date'] : [];
 
 		// Validate ville
 		if (empty($ville) || (int)$ville <= 0) {
@@ -135,7 +142,8 @@ $router->group('', function (Router $router) use ($app) {
 			}
 
 			// idType is no longer stored on besoins; simply insert with ville, idDons, quantite and prixUnitaire
-			$ok = BesoinVilleModel::addBesoin((int)$ville, (int)$idDons, $qte, $pu);
+			$dateVal = isset($dates[$idx]) ? $dates[$idx] : null;
+			$ok = BesoinVilleModel::addBesoin((int)$ville, (int)$idDons, $qte, $pu, $dateVal);
 			if (!$ok) {
 				@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'reason' => 'insert_failed', 'index' => $idx, 'params' => ['ville' => (int)$ville, 'idDons' => (int)$idDons, 'qte' => $qte, 'pu' => $pu]]) . PHP_EOL, FILE_APPEND | LOCK_EX);
 			}

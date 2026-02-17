@@ -70,7 +70,7 @@
                   <form action="<?= BASE_URL ?>/dons/add-multiple" method="POST" id="multiDonsForm">
                     <div id="donRows">
                       <div class="don-row mb-3 row">
-                        <div class="col-6">
+                        <div class="col-5">
                           <label>Nom du don</label>
                           <input type="text" name="nom[]" class="form-control" required>
                         </div>
@@ -83,9 +83,13 @@
                             <?php } } ?>
                           </select>
                         </div>
-                        <div class="col-3">
+                        <div class="col-2">
                           <label>Quantité</label>
                           <input type="number" name="quantite[]" class="form-control" required>
+                        </div>
+                        <div class="col-2">
+                          <label>Date</label>
+                          <input type="datetime-local" name="date[]" class="form-control">
                         </div>
                       </div>
                     </div>
