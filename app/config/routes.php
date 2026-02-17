@@ -75,11 +75,14 @@ $router->group('', function (Router $router) use ($app) {
 		$types = TypeDonsModel::getAllTypes();
 		// Build besoin list via model helper
 		$besoinVilles = BesoinVilleModel::getBesoinsForForm();
+		// modele dons list
+		$modelesAll = \app\models\ModeleDonsModel::getAllModeles();
 
 		$app->render('formDons', [
 			'csp_nonce' => $app->get('csp_nonce'),
 			'types' => $types,
 			'besoinVilles' => $besoinVilles,
+			'modelesAll' => $modelesAll,
 			'sinistreChartData' => []
 		]);
 	});
@@ -87,17 +90,30 @@ $router->group('', function (Router $router) use ($app) {
 	// Handle multiple donations from form
 	$router->post('/dons/add-multiple', function () use ($app) {
 		$data = $app->request()->data;
-		$noms = isset($data['nom']) ? $data['nom'] : [];
+		$modeles = isset($data['modele']) ? $data['modele'] : [];
 		$types = isset($data['type']) ? $data['type'] : [];
 		$quantites = isset($data['quantite']) ? $data['quantite'] : [];
 		$dates = isset($data['date']) ? $data['date'] : [];
+		$prixUnitaires = isset($data['prix']) ? $data['prix'] : [];
 		$donsController = new DonsController($app);
-		$result = $donsController->addMultiple($noms, $types, $quantites);
+		$result = $donsController->addMultiple($modeles, $types, $quantites, $dates, $prixUnitaires);
 		// Redirect back with summary counts so UI can show feedback
 		$inserted = isset($result['inserted']) ? (int)$result['inserted'] : 0;
 		$failed = isset($result['failed']) ? (int)$result['failed'] : 0;
 		$skipped = isset($result['skipped']) ? (int)$result['skipped'] : 0;
 		$app->redirect('/formDons?inserted=' . $inserted . '&failed=' . $failed . '&skipped=' . $skipped);
+	});
+
+	// Add a new modele de don
+	$router->post('/dons/add-model', function () use ($app) {
+		$name = trim($app->request()->data->model_nom ?? '');
+		$idType = (int)($app->request()->data->model_type ?? 0);
+		if ($name === '' || $idType <= 0) {
+			$app->redirect('/formDons?model_added=0');
+			return;
+		}
+		$ok = \app\models\ModeleDonsModel::addModele($name, $idType);
+		$app->redirect('/formDons?model_added=' . ($ok ? 1 : 0));
 	});
 
 	// Handle multiple besoins from form
