@@ -102,12 +102,10 @@ class DonsController
     }
 
     /**
-     * Add multiple donations at once. Expects arrays: nom[], type[], quantite[]
+     * Add multiple donations at once. Expects arrays: modele[], type[], quantite[], date[], prix[]
      */
-    public function addMultiple(array $noms, array $types, array $quantites)
+    public function addMultiple(array $modeles, array $types, array $quantites, array $dates = [], array $prixUnitaires = [])
     {
-        // collect dates from request if present
-        $dates = $_POST['date'] ?? [];
-        return DonsModel::addMultiple($noms, $types, $quantites, $dates);
+        return DonsModel::addMultiple($modeles, $types, $quantites, $dates, $prixUnitaires);
     }
 }
