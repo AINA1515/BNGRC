@@ -6,23 +6,19 @@ use Flight;
 
 class ModeleDonsModel
 {
-    /**
-     * Get all donation models.
-     *
-     * @return array
-     */
     public static function getAllModeles()
     {
         $query = "SELECT * FROM modeleDons";
         return Flight::db()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get a donation model by ID.
-     *
-     * @param int $id
-     * @return array|null
-     */
+    public static function addModele($nom, $idType)
+    {
+        $query = "INSERT INTO modeleDons (nom, idTypeDons) VALUES (:nom, :idType)";
+        $stmt = Flight::db()->prepare($query);
+        return $stmt->execute([':nom' => $nom, ':idType' => (int)$idType]);
+    }
+
     public static function getModeleById($id)
     {
         $query = "SELECT * FROM modeleDons WHERE id = :id";
@@ -32,12 +28,6 @@ class ModeleDonsModel
         return $row === false ? null : $row;
     }
 
-    /**
-     * Get donation models by type.
-     *
-     * @param int $idTypeDons
-     * @return array
-     */
     public static function getModelesByType($idTypeDons)
     {
         $query = "SELECT * FROM modeleDons WHERE idTypeDons = :idTypeDons";

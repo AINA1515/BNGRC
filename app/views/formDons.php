@@ -30,67 +30,108 @@
 
 <body class="with-welcome-text">
   <div class="container-scroller">
-      
-      <?php
-      include(ROOT_PATH . '/public/pages/header.php'); // Include the header file
-      ?><div class="main-panel">
-        <div class="content-wrapper">
-          <div class="row justify-content-center mt-5">
-            <div class="col-lg-6">
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">Créer des Dons</h4>
-                  <form action="<?= BASE_URL ?>/dons/add-multiple" method="POST" id="multiDonsForm">
-                    <div id="donRows">
-                      <div class="don-row mb-3 row">
-                        <div class="col-5">
-                          <label>Nom du don</label>
-                          <input type="text" name="nom[]" class="form-control" required>
-                        </div>
-                        <div class="col-3">
-                          <label>Type</label>
-                          <select name="type[]" class="form-control" required>
-                            <option value="">-- Choisir un type --</option>
-                            <?php if (!empty($types)) {
-                              foreach ($types as $t) { ?>
-                                <option value="<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['nom']) ?></option>
-                            <?php }
-                            } ?>
-                          </select>
-                        </div>
-                        <div class="col-2">
-                          <label>Quantité</label>
-                          <input type="number" name="quantite[]" class="form-control" required>
-                        </div>
-                        <div class="col-2">
-                          <label>Date</label>
-                          <input type="datetime-local" name="date[]" class="form-control">
-                        </div>
-                      </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button type="button" class="btn btn-secondary" id="addDonRow">Ajouter un don</button>
-                      <button type="submit" class="btn btn-primary">Créer les dons</button>
-                    </div>
-                  </form>
 
-                  <hr />
-                  <h5>Ajouter un type de don</h5>
-                  <?php if (!empty($_GET['type_added'])): ?>
-                    <div class="alert alert-success">Type ajouté avec succès.</div>
+    <?php
+    include(ROOT_PATH . '/public/pages/header.php'); // Include the header file
+    ?><div class="main-panel">
+      <div class="content-wrapper">
+        <div class="row justify-content-center mt-5">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Créer des Dons</h4>
+                <!-- Model form: manage donation models (name + type) -->
+                <div class="mb-4">
+                  <h5>Créer un modèle de don</h5>
+                  <?php if (!empty($_GET['model_added'])): ?>
+                    <div class="alert alert-success">Modèle ajouté avec succès.</div>
                   <?php endif; ?>
-                  <form action="<?= BASE_URL ?>/type/add" method="POST" class="mt-2">
-                    <div class="input-group">
-                      <input type="text" name="name" class="form-control" placeholder="Nom du type" required>
-                      <button class="btn btn-outline-primary" type="submit">Ajouter</button>
+                  <form action="<?= BASE_URL ?>/dons/add-model" method="POST" class="row g-2 align-items-end">
+                    <div class="col-6">
+                      <label>Nom du modèle</label>
+                      <input type="text" name="model_nom" class="form-control" required>
+                    </div>
+                    <div class="col-4">
+                      <label>Type</label>
+                      <select name="model_type" class="form-control" required>
+                        <option value="">-- Choisir un type --</option>
+                        <?php if (!empty($types)) {
+                          foreach ($types as $t) { ?>
+                            <option value="<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['nom']) ?></option>
+                        <?php }
+                        } ?>
+                      </select>
+                    </div>
+                    <div class="col-2">
+                      <button class="btn btn-sm btn-primary" type="submit">Ajouter</button>
                     </div>
                   </form>
                 </div>
+                <br>
+                  <hr>
+                  <br>
+                <form action="<?= BASE_URL ?>/dons/add-multiple" method="POST" id="multiDonsForm">
+                  <div id="donRows">
+                    <div class="don-row mb-3 row">
+                      <div class="col-4">
+                        <label>Modèle</label>
+                        <select name="modele[]" class="form-control modele-select" required>
+                          <option value="">-- Choisir un modèle --</option>
+                          <?php if (!empty($modelesAll)) {
+                            foreach ($modelesAll as $m) { ?>
+                              <option value="<?= htmlspecialchars($m['id']) ?>"><?= htmlspecialchars($m['nom']) ?></option>
+                          <?php }
+                          } ?>
+                        </select>
+                      </div>
+                      <div class="col-3">
+                        <label>Type</label>
+                        <select name="type[]" class="form-control" required>
+                          <option value="">-- Choisir un type --</option>
+                          <?php if (!empty($types)) {
+                            foreach ($types as $t) { ?>
+                              <option value="<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['nom']) ?></option>
+                          <?php }
+                          } ?>
+                        </select>
+                      </div>
+                      <div class="col-2">
+                        <label>Quantité</label>
+                        <input type="number" name="quantite[]" class="form-control" required>
+                      </div>
+                      <div class="col-1">
+                        <label>Prix U.</label>
+                        <input type="number" step="0.01" name="prix[]" class="form-control">
+                      </div>
+                      <div class="col-2">
+                        <label>Date</label>
+                        <input type="datetime-local" name="date[]" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary" id="addDonRow">Ajouter un don</button>
+                    <button type="submit" class="btn btn-primary">Créer les dons</button>
+                  </div>
+                </form>
+
+                <hr />
+                <h5>Ajouter un type de don</h5>
+                <?php if (!empty($_GET['type_added'])): ?>
+                  <div class="alert alert-success">Type ajouté avec succès.</div>
+                <?php endif; ?>
+                <form action="<?= BASE_URL ?>/type/add" method="POST" class="mt-2">
+                  <div class="input-group">
+                    <input type="text" name="name" class="form-control" placeholder="Nom du type" required>
+                    <button class="btn btn-outline-primary" type="submit">Ajouter</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
   </div>
   <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">

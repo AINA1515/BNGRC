@@ -218,14 +218,11 @@
                                     }
                                 });
                                 // On applique la distribution pour chaque besoin (dans l'ordre)
-                                // Calculer la somme des allocations par modèle
+                                // Calculer la somme des allocations par modèle (une seule fois par modèle)
                                 let sommeAllocParModele = {};
                                 data.result.forEach(row => {
                                     if (typeof row.idModeleDons !== 'undefined') {
-                                        if (typeof sommeAllocParModele[row.idModeleDons] === 'undefined') {
-                                            sommeAllocParModele[row.idModeleDons] = 0;
-                                        }
-                                        sommeAllocParModele[row.idModeleDons] += (row.sim_donnee || 0);
+                                        sommeAllocParModele[row.idModeleDons] = (sommeAllocParModele[row.idModeleDons] || 0) + (row.sim_donnee || 0);
                                     }
                                 });
                                 // Afficher la même valeur de stock restant pour tous les besoins d'un même modèle
@@ -245,16 +242,16 @@
                                         setTimeout(() => tr.style.backgroundColor = '', 1200);
                                     }
                                 });
-                                // Calcul du stock final par modèle (après toutes les distributions)
+                                // Calcul du stock final par modèle (stock initial - somme des allocations)
                                 Object.keys(stockRestantParModele).forEach(idModele => {
-                                    stockFinalParModele[idModele] = stockRestantParModele[idModele];
+                                    stockFinalParModele[idModele] = stockRestantParModele[idModele] - (sommeAllocParModele[idModele] || 0);
                                 });
-                                // Affiche la valeur finale du stock pour chaque besoin (même modèle = même valeur)
-                                document.querySelectorAll('div.col-md-6')[1]?.querySelectorAll('tr[data-besoin-id]')?.forEach(tr => {
-                                    const idModele = tr.getAttribute('data-id-modele');
-                                    const stockFinalEl = tr.querySelector('.bs-stock-final');
-                                    if (stockFinalEl && typeof stockFinalParModele[idModele] !== 'undefined') {
-                                        stockFinalEl.innerText = stockFinalParModele[idModele];
+                                // Afficher la valeur de stock final (sim_restant) renvoyée par le backend pour chaque besoin
+                                data.result.forEach(row => {
+                                    let tr = document.querySelectorAll('div.col-md-6')[1]?.querySelector('tr[data-besoin-id="'+row.id+'"]');
+                                    if (tr) {
+                                        const stockFinalEl = tr.querySelector('.bs-stock-final');
+                                        if (stockFinalEl) stockFinalEl.innerText = row.sim_restant;
                                     }
                                 });
                             }
