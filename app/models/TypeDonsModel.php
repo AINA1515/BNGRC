@@ -42,8 +42,7 @@ class TypeDonsModel
     {
         $query = "SELECT * FROM typeDons WHERE nom = :name";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute([':name' => $name]);
         return $stmt->fetch();
     }
     /**

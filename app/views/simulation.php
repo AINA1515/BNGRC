@@ -31,7 +31,7 @@
 
                                     <h4>Simulation d'affectation des dons</h4>
 
-                                    <form id="simModeForm" class="d-flex justify-content-end mb-2 gap-2 align-items-center" onsubmit="return false;">
+                                    <form id="simModeForm" class="d-flex justify-content-end mb-2 gap-2 align-items-center flex-wrap" onsubmit="return false;">
                                         <label for="simMode" class="me-2 mb-0">Mode :</label>
                                         <select id="simMode" class="form-select w-auto" style="min-width:180px">
                                             <option value="priorite">Priorité (plus ancien)</option>
@@ -41,6 +41,7 @@
                                         <button id="simulateBtn" class="btn btn-warning" type="button">Lancer la simulation</button>
                                         <button id="applySimBtn" class="btn btn-success" style="display:none" type="button">Appliquer</button>
                                         <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none" type="button">Annuler</button>
+                                        <button id="reinitBtn" class="btn btn-danger ms-auto" type="button">Réinitialiser DB</button>
                                     </form>
 
                                     <div class="row">
@@ -313,6 +314,38 @@
                         delete tr.dataset.simDonnee;
                         delete tr.dataset.simRestant;
                     });
+                });
+            }
+
+            // Reinitialize button handler
+            const reinitBtn = document.getElementById('reinitBtn');
+            if (reinitBtn) {
+                reinitBtn.addEventListener('click', function() {
+                    if (confirm('Êtes-vous sûr ? Cela va effacer toutes les données et recharger realData.sql')) {
+                        reinitBtn.disabled = true;
+                        reinitBtn.innerText = 'Réinitialisation en cours...';
+                        fetch('<?= BASE_URL ?>/reinitialize', { 
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: 'confirm=yes'
+                        })
+                            .then(r => r.json())
+                            .then(resp => {
+                                if (resp && resp.success) {
+                                    alert('Base de données réinitialisée avec succès');
+                                    window.location.reload();
+                                } else {
+                                    alert('Erreur: ' + (resp.error || 'Erreur inconnue'));
+                                    reinitBtn.disabled = false;
+                                    reinitBtn.innerText = 'Réinitialiser DB';
+                                }
+                            })
+                            .catch(err => {
+                                alert('Erreur réseau: ' + err.message);
+                                reinitBtn.disabled = false;
+                                reinitBtn.innerText = 'Réinitialiser DB';
+                            });
+                    }
                 });
             }
         })();
