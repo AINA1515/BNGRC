@@ -30,43 +30,10 @@
 
 <body class="with-welcome-text">
   <div class="container-scroller">
-    <div class="container-fluid page-body-wrapper">
-      <div class="row mb-4 mt-3">
-        <div class="col-12 text-center">
-          <h2 class="fw-bold">ReliefFlow</h2>
-        </div>
-      </div>
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-          <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/">
-              <i class="mdi mdi-grid-large menu-icon"></i>
-              <span class="menu-title">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item nav-category">Navigations</li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-              <i class="menu-icon mdi mdi-card-text-outline"></i>
-              <span class="menu-title">Forms</span>
-              <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="form-elements">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formBesoin">Besoin</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formDons">Dons</a></li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/simulation">
-              <i class="mdi mdi-playlist-play menu-icon"></i>
-              <span class="menu-title">Simulation</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      <div class="main-panel">
+      
+      <?php
+      include(ROOT_PATH . '/public/pages/header.php'); // Include the header file
+      ?><div class="main-panel">
         <div class="content-wrapper">
           <div class="row justify-content-center mt-5">
             <div class="col-lg-6">
@@ -84,9 +51,11 @@
                           <label>Type</label>
                           <select name="type[]" class="form-control" required>
                             <option value="">-- Choisir un type --</option>
-                            <?php if (!empty($types)) { foreach ($types as $t) { ?>
-                              <option value="<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['nom']) ?></option>
-                            <?php } } ?>
+                            <?php if (!empty($types)) {
+                              foreach ($types as $t) { ?>
+                                <option value="<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['nom']) ?></option>
+                            <?php }
+                            } ?>
                           </select>
                         </div>
                         <div class="col-2">
@@ -122,163 +91,160 @@
           </div>
         </div>
       </div>
-    </div>
   </div>
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-          <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/">
-              <i class="mdi mdi-grid-large menu-icon"></i>
-              <span class="menu-title">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item nav-category">Navigations</li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-              <i class="menu-icon mdi mdi-card-text-outline"></i>
-              <span class="menu-title">Forms</span>
-              <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="form-elements">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formBesoin">Besoin</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formDons">Dons</a></li>
+  <nav class="sidebar sidebar-offcanvas" id="sidebar">
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link" href="<?= BASE_URL ?>/">
+          <i class="mdi mdi-grid-large menu-icon"></i>
+          <span class="menu-title">Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item nav-category">Navigations</li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
+          <i class="menu-icon mdi mdi-card-text-outline"></i>
+          <span class="menu-title">Forms</span>
+          <i class="menu-arrow"></i>
+        </a>
+        <div class="collapse" id="form-elements">
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formBesoin">Besoin</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formDons">Dons</a></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </nav>
+  <!-- partial -->
+  <div class="main-panel">
+    <div class="content-wrapper">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="home-tab">
+            <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active ps-0" id="besoin-tab" data-bs-toggle="tab" href="#besoin" role="tab" aria-controls="besoin" aria-selected="true">Besoins</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link ps-0" id="dons-tab" data-bs-toggle="tab" href="#dons" role="tab" aria-controls="dons" aria-selected="false">Dons</a>
+                </li>
               </ul>
             </div>
-          </li>
-        </ul>
-      </nav>
-      <!-- partial -->
-      <div class="main-panel">
-        <div class="content-wrapper">
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="home-tab">
-                <div class="d-sm-flex align-items-center justify-content-between border-bottom">
-                  <ul class="nav nav-tabs" role="tablist">
-                    <li class="nav-item">
-                      <a class="nav-link active ps-0" id="besoin-tab" data-bs-toggle="tab" href="#besoin" role="tab" aria-controls="besoin" aria-selected="true">Besoins</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link ps-0" id="dons-tab" data-bs-toggle="tab" href="#dons" role="tab" aria-controls="dons" aria-selected="false">Dons</a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="tab-content tab-content-basic">
-                  <div class="tab-pane fade show active" id="besoin" role="tabpanel" aria-labelledby="besoin-tab">
-                    <div class="row">
-                      <div class="col-lg-8 d-flex flex-column">
-                        <div class="row flex-grow">
-                          <div class="col-12 grid-margin stretch-card">
-
-                            <!-- Ajout d'une liste de ville avec leurs besoin-->
-                            <div class="card">
-                              <div class="card-body">
-                                <h4 class="card-title">Liste des villes avec leurs besoin</h4>
-                                <div class="table-responsive">
-                                  <table class="table table-hover">
-                                    <thead>
-                                      <tr>
-                                        <th>Ville</th>
-                                        <th>Besoin</th>
-                                        <th>Quantite</th>
-                                        <th>P.U</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <?php if (isset($besoinVilles)) {
-                                        for ($i = 0; $i < count($besoinVilles); $i++) {
-                                          $besoinVille = $besoinVilles[$i]; ?>
-
-
-                                          <tr>
-                                            <td><?= $besoinVille['ville'] ?></td>
-                                            <td><?= $besoinVille['besoin'] ?></td>
-                                            <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
-                                            <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
-                                          </tr>
-                                        <?php }
-                                      } else { ?>
-                                        <tr>
-                                          <td>Ville 1</td>
-                                          <td>Argent</td>
-                                          <td class="text-danger"> 100 <i class="ti-arrow-down"></i></td>
-                                          <td><label class="badge badge-danger">Pending</label></td>
-                                        </tr>
-                                      <?php } ?>
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="tab-pane fade" id="dons" role="tabpanel" aria-labelledby="dons-tab">
-                    <div class="row">
-                      <div class="col-lg-8 d-flex flex-column">
-                        <div class="row flex-grow">
-                          <div class="col-12 grid-margin stretch-card">
-
-                            <!-- Ajout d'une liste de ville avec leurs besoin-->
-                            <div class="card">
-                              <div class="card-body">
-                                <h4 class="card-title">Liste des villes avec leurs besoin</h4>
-                                <div class="table-responsive">
-                                  <table class="table table-hover">
-                                    <thead>
-                                      <tr>
-                                        <th>Ville</th>
-                                        <th>Besoin</th>
-                                        <th>Quantite</th>
-                                        <th>P.U</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <?php if (isset($besoinVilles)) {
-                                        for ($i = 0; $i < count($besoinVilles); $i++) {
-                                          $besoinVille = $besoinVilles[$i]; ?>
-
-
-                                          <tr>
-                                            <td><?= $besoinVille['ville'] ?></td>
-                                            <td><?= $besoinVille['besoin'] ?></td>
-                                            <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
-                                            <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
-                                          </tr>
-                                        <?php }
-                                      } else { ?>
-                                        <tr>
-                                          <td>Ville 1</td>
-                                          <td>Argent</td>
-                                          <td class="text-danger"> 100 <i class="ti-arrow-down"></i></td>
-                                          <td><label class="badge badge-danger">Pending</label></td>
-                                        </tr>
-                                      <?php } ?>
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-lg-4 d-flex flex-column">
+            <div class="tab-content tab-content-basic">
+              <div class="tab-pane fade show active" id="besoin" role="tabpanel" aria-labelledby="besoin-tab">
+                <div class="row">
+                  <div class="col-lg-8 d-flex flex-column">
                     <div class="row flex-grow">
-                      <div class="row">
-                        <div class="col-lg-12 grid-margin stretch-card">
-                          <div class="card">
-                            <div class="card-body">
-                              <h4 class="card-title">Nombre de sinistres par ville</h4>
-                              <canvas id="sinistreChart"></canvas>
+                      <div class="col-12 grid-margin stretch-card">
+
+                        <!-- Ajout d'une liste de ville avec leurs besoin-->
+                        <div class="card">
+                          <div class="card-body">
+                            <h4 class="card-title">Liste des villes avec leurs besoin</h4>
+                            <div class="table-responsive">
+                              <table class="table table-hover">
+                                <thead>
+                                  <tr>
+                                    <th>Ville</th>
+                                    <th>Besoin</th>
+                                    <th>Quantite</th>
+                                    <th>P.U</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <?php if (isset($besoinVilles)) {
+                                    for ($i = 0; $i < count($besoinVilles); $i++) {
+                                      $besoinVille = $besoinVilles[$i]; ?>
+
+
+                                      <tr>
+                                        <td><?= $besoinVille['ville'] ?></td>
+                                        <td><?= $besoinVille['besoin'] ?></td>
+                                        <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
+                                        <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
+                                      </tr>
+                                    <?php }
+                                  } else { ?>
+                                    <tr>
+                                      <td>Ville 1</td>
+                                      <td>Argent</td>
+                                      <td class="text-danger"> 100 <i class="ti-arrow-down"></i></td>
+                                      <td><label class="badge badge-danger">Pending</label></td>
+                                    </tr>
+                                  <?php } ?>
+                                </tbody>
+                              </table>
                             </div>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="dons" role="tabpanel" aria-labelledby="dons-tab">
+                <div class="row">
+                  <div class="col-lg-8 d-flex flex-column">
+                    <div class="row flex-grow">
+                      <div class="col-12 grid-margin stretch-card">
+
+                        <!-- Ajout d'une liste de ville avec leurs besoin-->
+                        <div class="card">
+                          <div class="card-body">
+                            <h4 class="card-title">Liste des villes avec leurs besoin</h4>
+                            <div class="table-responsive">
+                              <table class="table table-hover">
+                                <thead>
+                                  <tr>
+                                    <th>Ville</th>
+                                    <th>Besoin</th>
+                                    <th>Quantite</th>
+                                    <th>P.U</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <?php if (isset($besoinVilles)) {
+                                    for ($i = 0; $i < count($besoinVilles); $i++) {
+                                      $besoinVille = $besoinVilles[$i]; ?>
+
+
+                                      <tr>
+                                        <td><?= $besoinVille['ville'] ?></td>
+                                        <td><?= $besoinVille['besoin'] ?></td>
+                                        <td class="text-success"> <?= $besoinVille['quantite'] ?></td>
+                                        <td><label class="badge badge-info"><?= $besoinVille['pu'] ?></label></td>
+                                      </tr>
+                                    <?php }
+                                  } else { ?>
+                                    <tr>
+                                      <td>Ville 1</td>
+                                      <td>Argent</td>
+                                      <td class="text-danger"> 100 <i class="ti-arrow-down"></i></td>
+                                      <td><label class="badge badge-danger">Pending</label></td>
+                                    </tr>
+                                  <?php } ?>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-4 d-flex flex-column">
+                <div class="row flex-grow">
+                  <div class="row">
+                    <div class="col-lg-12 grid-margin stretch-card">
+                      <div class="card">
+                        <div class="card-body">
+                          <h4 class="card-title">Nombre de sinistres par ville</h4>
+                          <canvas id="sinistreChart"></canvas>
                         </div>
                       </div>
                     </div>
@@ -288,20 +254,22 @@
             </div>
           </div>
         </div>
-
-        <!-- content-wrapper ends -->
-        <!-- partial:partials/_footer.html -->
-        <footer class="footer">
-          <div class="d-sm-flex justify-content-center justify-content-sm-between">
-            <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
-            <span class="float-none float-sm-end d-block mt-1 mt-sm-0 text-center">Copyright © 2023. All rights reserved.</span>
-          </div>
-        </footer>
-        <!-- partial -->
       </div>
-      <!-- main-panel ends -->
     </div>
-    <!-- page-body-wrapper ends -->
+
+    <!-- content-wrapper ends -->
+    <!-- partial:partials/_footer.html -->
+    <footer class="footer">
+      <div class="d-sm-flex justify-content-center justify-content-sm-between">
+        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
+        <span class="float-none float-sm-end d-block mt-1 mt-sm-0 text-center">Copyright © 2023. All rights reserved.</span>
+      </div>
+    </footer>
+    <!-- partial -->
+  </div>
+  <!-- main-panel ends -->
+  </div>
+  <!-- page-body-wrapper ends -->
   </div>
   <!-- container-scroller -->
   <!-- plugins:js -->
@@ -328,13 +296,15 @@
   </script>
   <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/my_script.js"></script>
   <script nonce="<?= $csp_nonce ?>">
-    (function(){
+    (function() {
       const addBtn = document.getElementById('addDonRow');
       const rowsContainer = document.getElementById('donRows');
-      addBtn && addBtn.addEventListener('click', function(){
+      addBtn && addBtn.addEventListener('click', function() {
         const row = document.querySelector('.don-row').cloneNode(true);
-        row.querySelectorAll('input').forEach(i=>i.value='');
-        row.querySelectorAll('select').forEach(s=>{ if (s.options.length>0) s.selectedIndex=0; });
+        row.querySelectorAll('input').forEach(i => i.value = '');
+        row.querySelectorAll('select').forEach(s => {
+          if (s.options.length > 0) s.selectedIndex = 0;
+        });
         rowsContainer.appendChild(row);
       });
     })();
