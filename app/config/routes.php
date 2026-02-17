@@ -55,20 +55,20 @@ $router->group('', function (Router $router) use ($app) {
 	});
 
 	// Render the Besoin form page
-	$router->get('/formBesoin', function () use ($app) {
-		// provide villes, dons and types for the form
-		$villes = VilleModel::getAllCities();
-		$donsAll = DonsModel::getAggregatedDonations();
-		$types = TypeDonsModel::getAllTypes();
+		$router->get('/formBesoin', function () use ($app) {
+			// provide villes, modèles de dons et types pour le formulaire
+			$villes = VilleModel::getAllCities();
+			$modelesAll = (new \app\models\ModeleDonsModel())->getAllModeles();
+			$types = TypeDonsModel::getAllTypes();
 
-		$app->render('formBesoin', [
-			'csp_nonce' => $app->get('csp_nonce'),
-			'villes' => $villes,
-			'donsAll' => $donsAll,
-			'types' => $types,
-			'sinistreChartData' => []
-		]);
-	});
+			$app->render('formBesoin', [
+				'csp_nonce' => $app->get('csp_nonce'),
+				'villes' => $villes,
+				'modelesAll' => $modelesAll,
+				'types' => $types,
+				'sinistreChartData' => []
+			]);
+		});
 
 	// Render the Dons form page
 	$router->get('/formDons', function () use ($app) {
@@ -104,48 +104,38 @@ $router->group('', function (Router $router) use ($app) {
 	$router->post('/besoinVille/add-multiple', function () use ($app) {
 		$data = $app->request()->data;
 		$ville = isset($data['ville']) ? $data['ville'] : null;
-	$dons = isset($data['don']) ? $data['don'] : [];
-	$quantites = isset($data['quantite']) ? $data['quantite'] : [];
-	$pus = isset($data['pu']) ? $data['pu'] : [];
-	$dates = isset($data['date']) ? $data['date'] : [];
+		$modeles = isset($data['modeleDon']) ? $data['modeleDon'] : [];
+		$quantites = isset($data['quantite']) ? $data['quantite'] : [];
+		$pus = isset($data['pu']) ? $data['pu'] : [];
+		$dates = isset($data['date']) ? $data['date'] : [];
 
 		// Validate ville
 		if (empty($ville) || (int)$ville <= 0) {
 			@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'error' => 'missing_ville', 'payload' => (array)$data]) . PHP_EOL, FILE_APPEND | LOCK_EX);
-			$app->redirect('/formBesoin?inserted=0&skipped=' . count((array)$dons) . '&error=missing_ville');
+			$app->redirect('/formBesoin?inserted=0&skipped=' . count((array)$modeles) . '&error=missing_ville');
 			return;
 		}
-		// Insert each besoin row, deriving idTypeDons from the selected don to satisfy FK
 		$inserted = 0;
 		$skipped = 0;
-		foreach ($dons as $idx => $idDons) {
+		foreach ($modeles as $idx => $idModele) {
 			$qte = isset($quantites[$idx]) ? (int)$quantites[$idx] : 0;
 			$pu = isset($pus[$idx]) ? $pus[$idx] : null;
-			if (!$idDons) {
-				@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'reason' => 'missing_don', 'index' => $idx, 'payload' => ['qte' => $qte, 'pu' => $pu]]) . PHP_EOL, FILE_APPEND | LOCK_EX);
+			if (!$idModele) {
+				@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'reason' => 'missing_modele', 'index' => $idx, 'payload' => ['qte' => $qte, 'pu' => $pu]]) . PHP_EOL, FILE_APPEND | LOCK_EX);
 				$skipped++;
 				continue;
 			}
-
-			// Diagnostic: capture raw id and type before lookup
-			$rawIdDons = $idDons;
-			$idDonsInt = (int)$idDons;
-			@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'debug' => 'before_lookup', 'index' => $idx, 'rawId' => $rawIdDons, 'castInt' => $idDonsInt, 'rawType' => gettype($rawIdDons)]) . PHP_EOL, FILE_APPEND | LOCK_EX);
-			// try to fetch the don to get its idTypeDons
-			$don = DonsModel::getDonationById($idDonsInt);
-			@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'debug' => 'after_lookup', 'index' => $idx, 'idDonsInt' => $idDonsInt, 'don' => $don]) . PHP_EOL, FILE_APPEND | LOCK_EX);
-			if (!$don || !isset($don['idTypeDons']) || empty($don['idTypeDons'])) {
-				// cannot determine type for this don -> skip to avoid FK error
-				@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'reason' => 'missing_don_type', 'index' => $idx, 'idDons' => $idDons, 'don' => $don]) . PHP_EOL, FILE_APPEND | LOCK_EX);
-				$skipped++;
-				continue;
+			// Si le PU n'est pas renseigné, utiliser celui du modèle
+			if ($pu === null || $pu === '' || $pu == 0) {
+				$modele = \app\models\ModeleDonsModel::getModeleById($idModele);
+				if ($modele && isset($modele['prixUnitaire'])) {
+					$pu = $modele['prixUnitaire'];
+				}
 			}
-
-			// idType is no longer stored on besoins; simply insert with ville, idDons, quantite and prixUnitaire
 			$dateVal = isset($dates[$idx]) ? $dates[$idx] : null;
-			$ok = BesoinVilleModel::addBesoin((int)$ville, (int)$idDons, $qte, $pu, $dateVal);
+			$ok = BesoinVilleModel::addBesoin((int)$ville, (int)$idModele, $qte, $pu, $dateVal);
 			if (!$ok) {
-				@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'reason' => 'insert_failed', 'index' => $idx, 'params' => ['ville' => (int)$ville, 'idDons' => (int)$idDons, 'qte' => $qte, 'pu' => $pu]]) . PHP_EOL, FILE_APPEND | LOCK_EX);
+				@file_put_contents('/tmp/besoin_insert.log', json_encode(['time' => date('c'), 'reason' => 'insert_failed', 'index' => $idx, 'params' => ['ville' => (int)$ville, 'idModeleDons' => (int)$idModele, 'qte' => $qte, 'pu' => $pu]]) . PHP_EOL, FILE_APPEND | LOCK_EX);
 			}
 			if ($ok) {
 				$inserted++;
@@ -153,8 +143,6 @@ $router->group('', function (Router $router) use ($app) {
 				$skipped++;
 			}
 		}
-
-		// Redirect back with a simple status query so the UI can show counts if desired
 		$app->redirect('/formBesoin?inserted=' . $inserted . '&skipped=' . $skipped);
 	});
 
@@ -189,9 +177,10 @@ $router->post('/type/add', function () use ($app) {
 
 // Simulation route: compute how much of each besoin would be filled by current dons/historique
 $router->get('/simulate', function () use ($app) {
-		header('Content-Type: application/json');
-		$sim = BesoinVilleModel::simulateAllocation();
-		echo json_encode($sim);
+	header('Content-Type: application/json');
+	$mode = $_GET['mode'] ?? 'priorite';
+	$sim = BesoinVilleModel::simulateAllocation($mode);
+	echo json_encode($sim);
 });
 
 // Render the dedicated Simulation page

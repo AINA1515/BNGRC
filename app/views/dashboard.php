@@ -62,13 +62,19 @@
 
                 <li class="nav-item">
                   <a class="nav-link" href="<?= BASE_URL ?>/formBesoin">
-                    Besoin
+                    Ajouter un Besoin
                   </a>
                 </li>
 
                 <li class="nav-item">
                   <a class="nav-link" href="<?= BASE_URL ?>/formDons">
-                    Dons
+                    Faire un Don
+                  </a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="nav-link" href="<?= BASE_URL ?>/formDons">
+                    Model Don
                   </a>
                 </li>
 
@@ -124,7 +130,7 @@
                           <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
                               <tr>
                                 <td><?= htmlspecialchars($b['nomVille']) ?></td>
-                                <td><?= htmlspecialchars($b['nomDon']) ?></td>
+                                <td><?= htmlspecialchars($b['nomDon'] ?? $b['nom'] ?? '') ?></td>
                                 <td><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
                                 <td><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
                                 <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
@@ -158,8 +164,6 @@
               </div>
             </div>
 
-
-
             <!-- TAB DONS -->
             <div class="tab-pane fade" id="dons">
 
@@ -167,14 +171,6 @@
                 <div class="card-body">
 
                   <h4>Liste dons</h4>
-
-                  <div class="mb-3">
-                    <form action="<?= BASE_URL ?>/type/add" method="POST" class="d-flex gap-2 align-items-center">
-                      <input type="text" name="name" class="form-control" placeholder="Nouveau type de don" required>
-                      <button class="btn btn-sm btn-outline-primary" type="submit">Ajouter le type</button>
-                    </form>
-                  </div>
-
                   <table class="table table-hover">
                     <thead>
                       <tr>
@@ -188,9 +184,13 @@
                     </thead>
 
                     <tbody>
-                      <?php if (!empty($dons)): foreach ($dons as $d): ?>
+                      <?php
+                      // Afficher chaque don individuellement (non agrégé)
+                      if (!empty($dons)):
+                        foreach ($dons as $d):
+                      ?>
                           <tr>
-                            <td><?= htmlspecialchars($d['nom']) ?></td>
+                            <td><?= htmlspecialchars($d['nomModele'] ?? $d['nomDon'] ?? $d['nom'] ?? '') ?></td>
                             <td><span class="badge bg-info"><?= htmlspecialchars($d['typeDon']) ?></span></td>
                             <td><?= htmlspecialchars($d['date_'] ?? '') ?></td>
                             <td><?= htmlspecialchars(number_format((int)($d['quantite'] ?? 0), 0, '.', ' ')) ?></td>
@@ -199,10 +199,12 @@
                             $dtotal = $dpu * ((int)($d['quantite'] ?? 0)); ?>
                             <td class="text-end"><?= htmlspecialchars(number_format($dtotal, 2, '.', ' ')) ?></td>
                           </tr>
-                        <?php endforeach;
-                      else: ?>
+                      <?php
+                        endforeach;
+                      else:
+                      ?>
                         <tr>
-                          <td colspan="4" class="text-center">Aucun don</td>
+                          <td colspan="6" class="text-center">Aucun don</td>
                         </tr>
                       <?php endif; ?>
                     </tbody>

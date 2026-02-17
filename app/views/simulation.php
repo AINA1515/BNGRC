@@ -84,51 +84,98 @@
 
                   <h4>Simulation d'affectation des dons</h4>
 
-                  <div class="d-flex justify-content-end mb-2 gap-2">
-                    <button id="simulateBtn" class="btn btn-warning">Simuler l'affectation des dons</button>
-                    <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none">Annuler la simulation</button>
-                  </div>
+                  <form id="simModeForm" class="d-flex justify-content-end mb-2 gap-2 align-items-center" onsubmit="return false;">
+                    <label for="simMode" class="me-2 mb-0">Mode :</label>
+                    <select id="simMode" class="form-select w-auto" style="min-width:180px">
+                      <option value="priorite">Priorité (plus ancien)</option>
+                      <option value="min">Plus petit besoin</option>
+                      <option value="proportionnel">Proportionnel</option>
+                    </select>
+                    <button id="simulateBtn" class="btn btn-warning" type="button">Simuler l'affectation des dons</button>
+                    <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none" type="button">Annuler la simulation</button>
+                  </form>
 
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Ville</th>
-                        <th>Besoin</th>
-                        <th>Date</th>
-                        <th>depart(besoin)</th>
-                        <th>donation</th>
-                        <th>Restant(dons)</th>
-                        <th>Après(besoins)</th>
-                        <th>P.U</th>
-                        <th>P.Total(besoin)</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
-                          <tr data-besoin-id="<?= htmlspecialchars($b['id'] ?? '') ?>" data-real-donnee="<?= htmlspecialchars($b['donnee']) ?>" data-real-restant="<?= htmlspecialchars($b['restant']) ?>" data-initial="<?= htmlspecialchars($b['quantite']) ?>">
-                            <td><?= htmlspecialchars($b['nomVille']) ?></td>
-                            <td><?= htmlspecialchars($b['nomDon']) ?></td>
-                            <td class="bs-date"><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
-                            <td class="bs-depart"><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
-                            <td class="bs-donnee">0</td>
-                            <td class="bs-restant"><?= htmlspecialchars(number_format((int)($b['restant'] ?? 0), 0, '.', ' ')) ?></td>
-                            <td class="bs-apres"><?php $initial = (int)($b['quantite'] ?? 0);
-                                                      $realDon = min((int)($b['donnee'] ?? 0), $initial);
-                                                      echo htmlspecialchars(number_format($initial - $realDon, 0, '.', ' ')); ?></td>
-                            <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
-                            <?php $bpu = (float)($b['prixUnitaire'] ?? 0);
-                            $btotal = $bpu * ((int)($b['quantite'] ?? 0)); ?>
-                            <td class="text-end"><?= htmlspecialchars(number_format($btotal, 2, '.', ' ')) ?></td>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <h5>Valeurs initiales</h5>
+                      <table class="table table-hover table-primary bg-primary bg-opacity-10 rounded-3">
+                        <thead>
+                          <tr>
+                            <th>Ville</th>
+                            <th>Besoin</th>
+                            <th>Date</th>
+                            <th>Besoin</th>
+                            <th>Stock dons</th>
+                            <th>P.U</th>
+                            <th>P.Total</th>
                           </tr>
-                        <?php endforeach;
-                      else: ?>
-                        <tr>
-                          <td colspan="9" class="text-center">Aucune donnée</td>
-                        </tr>
-                      <?php endif; ?>
-                    </tbody>
-                  </table>
+                        </thead>
+                        <tbody>
+                          <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
+                            <tr data-besoin-id="<?= htmlspecialchars($b['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                              <td><?= htmlspecialchars($b['nomVille'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                              <td><?= htmlspecialchars($b['nomDon'] ?? $b['nom'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                              <td><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '', ENT_QUOTES, 'UTF-8') ?></td>
+                              <td><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' '), ENT_QUOTES, 'UTF-8') ?></td>
+                              <?php
+                                // Calcul du stock dons initial pour ce besoin (somme des quantités dans la table dons)
+                                $stock = 0;
+                                if (isset($b['idModeleDons'])) {
+                                  if (!isset($__stockMapDonsModel)) {
+                                    // Génère la map stock dons par modèle une seule fois
+                                    $__stockMapDonsModel = [];
+                                    $donsRows = \app\models\DonsModel::getAllDonations();
+                                    foreach ($donsRows as $don) {
+                                      $k = isset($don['idModeleDons']) ? $don['idModeleDons'] : '0';
+                                      $__stockMapDonsModel[$k] = ($__stockMapDonsModel[$k] ?? 0) + (int)($don['quantite'] ?? 0);
+                                    }
+                                  }
+                                  $stockKey = $b['idModeleDons'];
+                                  $stock = $__stockMapDonsModel[$stockKey] ?? 0;
+                                } else {
+                                  $stock = 0;
+                                }
+                              ?>
+                              <td class="bs-stock"><?= htmlspecialchars(number_format($stock, 0, '.', ' '), ENT_QUOTES, 'UTF-8') ?></td>
+                              <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' '), ENT_QUOTES, 'UTF-8') ?></td>
+                              <?php $bpu = (float)($b['prixUnitaire'] ?? 0);
+                              $btotal = $bpu * ((int)($b['quantite'] ?? 0)); ?>
+                              <td class="text-end"><?= htmlspecialchars(number_format($btotal, 2, '.', ' '), ENT_QUOTES, 'UTF-8') ?></td>
+                            </tr>
+                          <?php endforeach;
+                          else: ?>
+                            <tr>
+                              <td colspan="7" class="text-center">Aucune donnée</td>
+                            </tr>
+                          <?php endif; ?>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="col-md-6">
+                      <h5>Après simulation</h5>
+                      <table class="table table-hover table-warning bg-warning bg-opacity-25 rounded-3">
+                        <thead>
+                          <tr>
+                            <th>Besoin restant</th>
+                            <th>Stock final</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
+                            <tr data-besoin-id="<?= htmlspecialchars($b['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" data-id-modele="<?= htmlspecialchars($b['idModeleDons'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                              <td class="bs-apres">0</td>
+                              <td class="bs-stock-final">0</td>
+                            </tr>
+                          <?php endforeach;
+                          else: ?>
+                            <tr>
+                              <td colspan="2" class="text-center">Aucune donnée</td>
+                            </tr>
+                          <?php endif; ?>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
                 </div>
               </div>
@@ -155,6 +202,34 @@
 
   <script nonce="<?= $csp_nonce ?>">
     (function(){
+      // Initialisation du tableau "Après simulation" avec les valeurs initiales
+      function initSimulationTable() {
+        // Récupère les besoins et leur stock initial par modèle
+        let stockParModele = {};
+        document.querySelectorAll('div.col-md-6')[0]?.querySelectorAll('tr[data-besoin-id]')?.forEach(tr => {
+          const idModele = tr.getAttribute('data-id-modele');
+          const stockCell = tr.querySelector('.bs-stock');
+          let stock = 0;
+          if (stockCell) stock = parseInt(stockCell.innerText.replace(/\s/g, '') || '0', 10);
+          if (typeof stockParModele[idModele] === 'undefined') stockParModele[idModele] = stock;
+        });
+        document.querySelectorAll('div.col-md-6')[1]?.querySelectorAll('tr[data-besoin-id]')?.forEach(tr => {
+          const idModele = tr.getAttribute('data-id-modele');
+          const besoinCell = tr.querySelector('.bs-apres');
+          const stockOpCell = tr.querySelector('.bs-restant');
+          const stockFinalCell = tr.querySelector('.bs-stock-final');
+          // Besoin restant initial = besoin initial
+          const besoinInit = document.querySelector('div.col-md-6 tr[data-besoin-id="'+tr.getAttribute('data-besoin-id')+'"] td:nth-child(4)');
+          let besoinVal = besoinInit ? besoinInit.innerText.replace(/\s/g, '') : '0';
+          besoinVal = parseInt(besoinVal || '0', 10);
+          if (besoinCell) besoinCell.innerText = besoinVal;
+          if (stockOpCell) stockOpCell.innerText = stockParModele[idModele] ?? 0;
+          if (stockFinalCell) stockFinalCell.innerText = stockParModele[idModele] ?? 0;
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', initSimulationTable);
+
       const btn = document.getElementById('simulateBtn');
       if (!btn) return;
       const cancelBtn = document.getElementById('cancelSimBtn');
@@ -164,7 +239,8 @@
         btn.innerHTML = 'Simulation en cours...';
         let dots = 0;
         const interval = setInterval(()=>{ btn.innerHTML = 'Simulation en cours' + '.'.repeat(dots%4); dots++; }, 400);
-        fetch('<?= BASE_URL ?>/simulate')
+        const mode = document.getElementById('simMode')?.value || 'priorite';
+        fetch('<?= BASE_URL ?>/simulate?mode=' + encodeURIComponent(mode))
           .then(r => r.json())
           .then(data => {
             clearInterval(interval);
@@ -172,25 +248,67 @@
             btn.disabled = false;
             if (cancelBtn) cancelBtn.style.display = 'inline-block';
             if (data && Array.isArray(data.result) && data.result.length>0) {
-              data.result.forEach(row => {
-                let tr = document.querySelector('tr[data-besoin-id="'+row.id+'"]');
-                if (tr) {
-                  const donneeEl = tr.querySelector('.bs-donnee');
-                  const restantEl = tr.querySelector('.bs-restant');
-                  const apresEl = tr.querySelector('.bs-apres');
-                  tr.dataset.simDonnee = row.sim_donnee;
-                  tr.dataset.simRestant = row.sim_restant;
-                  if (donneeEl) donneeEl.innerText = row.sim_donnee;
-                  if (restantEl) restantEl.innerText = row.sim_restant;
-                  if (apresEl) {
-                    const initial = parseInt(tr.dataset.initial || '0', 10);
-                    apresEl.innerText = Math.max(0, initial - (row.sim_donnee || 0));
+              // Calcul dynamique du stock restant par modèle (après toutes les distributions)
+              let stockRestantParModele = {};
+              let stockFinalParModele = {};
+              // On commence par le stock initial par modèle (somme des dons)
+              if (data && Array.isArray(data.result)) {
+                data.result.forEach(row => {
+                  if (typeof row.idModeleDons !== 'undefined') {
+                    if (typeof stockRestantParModele[row.idModeleDons] === 'undefined') {
+                      // Stock initial pour ce modèle (somme de tous les dons de ce modèle)
+                      stockRestantParModele[row.idModeleDons] = 0;
+                      if (Array.isArray(data.dons)) {
+                        data.dons.forEach(don => {
+                          if (don.idModeleDons == row.idModeleDons) {
+                            stockRestantParModele[row.idModeleDons] += parseInt(don.quantite || 0, 10);
+                          }
+                        });
+                      }
+                    }
                   }
-                  tr.style.transition = 'background-color 0.6s ease';
-                  tr.style.backgroundColor = '#fff3cd';
-                  setTimeout(()=> tr.style.backgroundColor = '', 1200);
-                }
-              });
+                });
+                // On applique la distribution pour chaque besoin (dans l'ordre)
+                // Calculer la somme des allocations par modèle
+                let sommeAllocParModele = {};
+                data.result.forEach(row => {
+                  if (typeof row.idModeleDons !== 'undefined') {
+                    if (typeof sommeAllocParModele[row.idModeleDons] === 'undefined') {
+                      sommeAllocParModele[row.idModeleDons] = 0;
+                    }
+                    sommeAllocParModele[row.idModeleDons] += (row.sim_donnee || 0);
+                  }
+                });
+                // Afficher la même valeur de stock restant pour tous les besoins d'un même modèle
+                data.result.forEach(row => {
+                  let tr = document.querySelectorAll('div.col-md-6')[1]?.querySelector('tr[data-besoin-id="'+row.id+'"]');
+                  if (tr) {
+                    const restantEl = tr.querySelector('.bs-restant');
+                    const apresEl = tr.querySelector('.bs-apres');
+                    let stockInitial = stockRestantParModele[row.idModeleDons] ?? 0;
+                    let stockRestant = stockInitial - (sommeAllocParModele[row.idModeleDons] || 0);
+                    if (restantEl) restantEl.innerText = stockRestant;
+                    // besoin restant = besoin initial - dons affectés
+                    const besoinRestant = Math.max(0, (row.initial || 0) - (row.sim_donnee || 0));
+                    if (apresEl) apresEl.innerText = besoinRestant;
+                    tr.style.transition = 'background-color 0.6s ease';
+                    tr.style.backgroundColor = '#fff3cd';
+                    setTimeout(()=> tr.style.backgroundColor = '', 1200);
+                  }
+                });
+                // Calcul du stock final par modèle (après toutes les distributions)
+                Object.keys(stockRestantParModele).forEach(idModele => {
+                  stockFinalParModele[idModele] = stockRestantParModele[idModele];
+                });
+                // Affiche la valeur finale du stock pour chaque besoin (même modèle = même valeur)
+                document.querySelectorAll('div.col-md-6')[1]?.querySelectorAll('tr[data-besoin-id]')?.forEach(tr => {
+                  const idModele = tr.getAttribute('data-id-modele');
+                  const stockFinalEl = tr.querySelector('.bs-stock-final');
+                  if (stockFinalEl && typeof stockFinalParModele[idModele] !== 'undefined') {
+                    stockFinalEl.innerText = stockFinalParModele[idModele];
+                  }
+                });
+              }
             }
           })
           .catch(err => {

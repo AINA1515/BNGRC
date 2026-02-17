@@ -39,37 +39,31 @@ class BesoinVilleModel
     }
 
 
-    public static function addBesoin($idVille, $idDons, $quantite, $prixUnitaire, $date = null)
+    public static function addBesoin($idVille, $idModeleDons, $quantite, $prixUnitaire, $date = null)
     {
-        // idTypeDons removed from besoinsVille; it's derived from dons when needed
-        $query = "INSERT INTO besoinsVille (idVille, idDons, quantite, prixUnitaire, date_) VALUES (:idVille, :idDons, :quantite, :prixUnitaire, :date_)";
+        $query = "INSERT INTO besoinsVille (idVille, idModeleDons, quantite, prixUnitaire, date_) VALUES (:idVille, :idModeleDons, :quantite, :prixUnitaire, :date_)";
         $stmt = Flight::db()->prepare($query);
-        // bind values with proper types; prixUnitaire may be null or numeric
         $stmt->bindValue(':idVille', (int)$idVille, \PDO::PARAM_INT);
-        $stmt->bindValue(':idDons', (int)$idDons, \PDO::PARAM_INT);
+        $stmt->bindValue(':idModeleDons', (int)$idModeleDons, \PDO::PARAM_INT);
         $stmt->bindValue(':quantite', (int)$quantite, \PDO::PARAM_INT);
         if ($prixUnitaire === null || $prixUnitaire === '') {
             $stmt->bindValue(':prixUnitaire', null, \PDO::PARAM_NULL);
         } else {
-            // store as string/decimal format
             $stmt->bindValue(':prixUnitaire', (string)$prixUnitaire, \PDO::PARAM_STR);
         }
-        // date: provided by caller or default to now
         if ($date === null || trim($date) === '') {
             $stmt->bindValue(':date_', date('Y-m-d H:i:s'));
         } else {
             $ts = strtotime($date);
             $stmt->bindValue(':date_', $ts === false ? date('Y-m-d H:i:s') : date('Y-m-d H:i:s', $ts));
         }
-
         $ok = $stmt->execute();
         if (!$ok) {
-            // log diagnostic info for debugging
             $err = $stmt->errorInfo();
             $payload = [
                 'time' => date('c'),
                 'idVille' => $idVille,
-                'idDons' => $idDons,
+                'idModeleDons' => $idModeleDons,
                 'quantite' => $quantite,
                 'prixUnitaire' => $prixUnitaire,
                 'error' => $err
@@ -79,13 +73,13 @@ class BesoinVilleModel
         return $ok;
     }
 
-    public static function updateBesoin($id, $idVille, $idDons, $quantite, $prixUnitaire)
+    public static function updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire)
     {
-        $query = "UPDATE besoinsVille SET idVille = :idVille, idDons = :idDons, quantite = :quantite, prixUnitaire = :prixUnitaire WHERE id = :id";
+        $query = "UPDATE besoinsVille SET idVille = :idVille, idModeleDons = :idModeleDons, quantite = :quantite, prixUnitaire = :prixUnitaire WHERE id = :id";
         $stmt = Flight::db()->prepare($query);
         $stmt->bindValue(':id', (int)$id, \PDO::PARAM_INT);
         $stmt->bindValue(':idVille', (int)$idVille, \PDO::PARAM_INT);
-        $stmt->bindValue(':idDons', (int)$idDons, \PDO::PARAM_INT);
+        $stmt->bindValue(':idModeleDons', (int)$idModeleDons, \PDO::PARAM_INT);
         $stmt->bindValue(':quantite', (int)$quantite, \PDO::PARAM_INT);
         if ($prixUnitaire === null || $prixUnitaire === '') {
             $stmt->bindValue(':prixUnitaire', null, \PDO::PARAM_NULL);
@@ -133,8 +127,6 @@ class BesoinVilleModel
     public static function getEnrichedBesoinsForDashboard()
     {
         $besoinsRaw = self::getAllBesoins();
-
-        // build ville map
         $villeMap = [];
         $villes = VilleModel::getAllCities();
         if (is_array($villes)) {
@@ -144,40 +136,14 @@ class BesoinVilleModel
                 }
             }
         }
-
-        // build dons raw list and mapping to group key (normalized name + type)
-        $donsAll = DonsModel::getAllDonations();
-        $donsMap = []; // id => name (fallback)
-        $donIdToGroup = []; // id => groupKey (name::type)
-        if (is_array($donsAll)) {
-            foreach ($donsAll as $d) {
-                if (!isset($d['id'])) continue;
-                $did = (int)$d['id'];
-                $name = isset($d['nom']) ? trim(mb_strtolower($d['nom'])) : '';
-                $type = isset($d['idTypeDons']) ? (int)$d['idTypeDons'] : 0;
-                $key = $name . '::' . $type;
-                $donsMap[$did] = $d['nom'] ?? '';
-                $donIdToGroup[$did] = $key;
+        // build modele dons map
+        $modeles = \app\models\ModeleDonsModel::getAllModeles();
+        $modeleMap = [];
+        if (is_array($modeles)) {
+            foreach ($modeles as $m) {
+                $modeleMap[$m['id']] = $m['nom'];
             }
         }
-
-        // get aggregated donation totals per group (sum of quantite)
-        $aggregated = DonsModel::getAggregatedDonations();
-        $groupTotals = []; // groupKey => ['quantite' => total, 'nom' => originalName]
-        if (is_array($aggregated)) {
-            foreach ($aggregated as $g) {
-                $gname = isset($g['nom']) ? trim(mb_strtolower($g['nom'])) : '';
-                $gidType = isset($g['idTypeDons']) ? (int)$g['idTypeDons'] : 0;
-                $gkey = $gname . '::' . $gidType;
-                $groupTotals[$gkey] = [
-                    'quantite' => (int)($g['quantite'] ?? 0),
-                    'nom' => $g['nom'] ?? ''
-                ];
-            }
-        }
-
-        // build historique sums per (ville, groupKey) by mapping historiqueDons.idDons -> groupKey
-        // each historique row references a don id; join to dons and sum the don.quantite to compute how much
         // was actually donated to a ville for a given don id
         $histRows = Flight::db()->query('SELECT h.idVille as idVille, h.idDons as idDons, SUM(d.quantite) as totalDonnee FROM historiqueDons h JOIN dons d on d.id = h.idDons GROUP BY h.idVille, h.idDons')->fetchAll(\PDO::FETCH_ASSOC);
         $donMap = []; // key: "{idVille}_{groupKey}" => totalDonnee
@@ -199,47 +165,17 @@ class BesoinVilleModel
         if (is_array($besoinsRaw)) {
             foreach ($besoinsRaw as $b) {
                 $idVille = $b['idVille'] ?? null;
-                $idDons = isset($b['idDons']) ? (int)$b['idDons'] : null;
+                $idModele = isset($b['idModeleDons']) ? (int)$b['idModeleDons'] : null;
                 $initial = isset($b['quantite']) ? (int)$b['quantite'] : 0;
-
-                // determine the groupKey for the besoin's don id and collect historical donated amount across that group for this ville
-                $groupKey = null;
-                if ($idDons !== null) {
-                    $groupKey = $donIdToGroup[$idDons] ?? null;
-                }
-
-                // historical donated to this ville for the whole group (raw sum)
-                $rawDonnee = 0;
-                if ($groupKey !== null) {
-                    $mapK = $idVille . '_' . $groupKey;
-                    $rawDonnee = $donMap[$mapK] ?? 0;
-                }
-
-                // Compute remaining stock for the group after historical donations to this ville.
-                // restant = max(group_total - rawDonnee, 0)
-                if ($groupKey !== null && isset($groupTotals[$groupKey])) {
-                    // Show the aggregated group total as the 'restant' displayed before simulation
-                    $groupTotal = (int)$groupTotals[$groupKey]['quantite'];
-                    $restant = $groupTotal;
-                } else {
-                    // fallback: remaining of besoin after historical donations
-                    $restant = max($initial - $rawDonnee, 0);
-                }
-
-                // Displayed 'donnee' should be how much was actually delivered to this besoinVille,
-                // capped at the besoin's initial quantite (Départ) as requested.
-                $donnee = min($rawDonnee, $initial);
-
                 $besoinVilles[] = [
                     'id' => $b['id'] ?? null,
                     'idVille' => $idVille,
                     'nomVille' => $villeMap[$idVille] ?? ($b['nomVille'] ?? ''),
-                    'idDons' => $idDons,
-                    // prefer group name if available, otherwise fallback to the specific don name
-                    'nomDon' => ($groupKey !== null && isset($groupTotals[$groupKey])) ? ($groupTotals[$groupKey]['nom'] ?? ($donsMap[$idDons] ?? ($b['nomDon'] ?? ''))) : ($donsMap[$idDons] ?? ($b['nomDon'] ?? '')),
+                    'idModeleDons' => $idModele,
+                    'nomDon' => $modeleMap[$idModele] ?? ($b['nomDon'] ?? ''),
                     'quantite' => $initial,
-                    'donnee' => $donnee,
-                    'restant' => $restant,
+                    'donnee' => null, // à calculer si besoin d'afficher la quantité donnée
+                    'restant' => null, // à calculer si besoin d'afficher le restant
                     'prixUnitaire' => $b['prixUnitaire'] ?? null,
                     'date_' => $b['date_'] ?? null
                 ];
@@ -290,7 +226,7 @@ class BesoinVilleModel
      * Simulate allocation of available donations to besoins.
      * Returns ['result' => [...], 'available' => [...]] where result contains per-besoin simulated donnee/restant
      */
-    public static function simulateAllocation()
+    public static function simulateAllocation($mode = 'priorite')
     {
         // load besoins and aggregated dons (grouped by name+type)
         $besoins = self::getAllBesoins();
@@ -337,21 +273,18 @@ class BesoinVilleModel
             }
         }
 
-        // group besoins by groupKey and collect their metadata (id, initial, date)
-        $besoinsByGroup = [];
+        // Regroupement par modèle (stock partagé pour tous les besoins du même modèle)
+        $besoinsByModele = [];
         if (is_array($besoins)) {
             foreach ($besoins as $b) {
                 $bid = (int)($b['id'] ?? 0);
-                $donId = isset($b['idDons']) ? (int)$b['idDons'] : 0;
-                $gkey = $donIdToGroup[$donId] ?? null;
-                if ($gkey === null) continue;
+                $idModele = isset($b['idModeleDons']) ? $b['idModeleDons'] : null;
                 $dateRaw = $b['date_'] ?? null;
-                // parse date to timestamp; treat invalid/missing dates as very new so they are filled last
                 $ts = false;
                 if (!empty($dateRaw)) $ts = strtotime($dateRaw);
                 if ($ts === false || $ts === null) $ts = PHP_INT_MAX;
-                if (!isset($besoinsByGroup[$gkey])) $besoinsByGroup[$gkey] = [];
-                $besoinsByGroup[$gkey][] = [
+                if (!isset($besoinsByModele[$idModele])) $besoinsByModele[$idModele] = [];
+                $besoinsByModele[$idModele][] = [
                     'id' => $bid,
                     'initial' => $resultMap[$bid]['initial'] ?? 0,
                     'date_ts' => $ts,
@@ -359,31 +292,80 @@ class BesoinVilleModel
             }
         }
 
-        // allocate per group across its besoins (oldest besoins first by date_)
-        foreach ($besoinsByGroup as $gkey => $bitems) {
-            // sort besoins by date timestamp ascending (oldest first), tie-breaker by id
-            usort($bitems, function ($a, $b) {
-                if ($a['date_ts'] === $b['date_ts']) return $a['id'] <=> $b['id'];
-                return $a['date_ts'] <=> $b['date_ts'];
-            });
-            $avail = $availableGroup[$gkey] ?? 0;
-            $allocatedTotal = 0;
-            foreach ($bitems as $item) {
-                if ($avail <= 0) break;
-                $bid = $item['id'];
-                $needInitial = $item['initial'];
-                $alloc = min($needInitial, $avail);
-                $resultMap[$bid]['sim_donnee'] = $alloc;
-                $avail -= $alloc;
-                $allocatedTotal += $alloc;
+        // Calcul du stock initial par modèle (somme des dons)
+        $stockParModele = [];
+        foreach ($allDons as $don) {
+            $idModele = isset($don['idModeleDons']) ? $don['idModeleDons'] : null;
+            $stockParModele[$idModele] = ($stockParModele[$idModele] ?? 0) + (int)($don['quantite'] ?? 0);
+        }
+
+        // Pour chaque modèle, distribuer le stock aux besoins selon le mode
+        foreach ($besoinsByModele as $idModele => $bitems) {
+            $avail = $stockParModele[$idModele] ?? 0;
+            if ($mode === 'priorite') {
+                // plus ancien prioritaire
+                usort($bitems, function ($a, $b) {
+                    if ($a['date_ts'] === $b['date_ts']) return $a['id'] <=> $b['id'];
+                    return $a['date_ts'] <=> $b['date_ts'];
+                });
+                foreach ($bitems as $item) {
+                    $bid = $item['id'];
+                    $needInitial = $item['initial'];
+                    $alloc = min($needInitial, $avail);
+                    $resultMap[$bid]['sim_donnee'] = $alloc;
+                    $avail -= $alloc;
+                    $resultMap[$bid]['sim_restant'] = $avail;
+                }
+            } elseif ($mode === 'min') {
+                // plus petit besoin prioritaire
+                usort($bitems, function ($a, $b) {
+                    if ($a['initial'] === $b['initial']) return $a['id'] <=> $b['id'];
+                    return $a['initial'] <=> $b['initial'];
+                });
+                foreach ($bitems as $item) {
+                    $bid = $item['id'];
+                    $needInitial = $item['initial'];
+                    $alloc = min($needInitial, $avail);
+                    $resultMap[$bid]['sim_donnee'] = $alloc;
+                    $avail -= $alloc;
+                    $resultMap[$bid]['sim_restant'] = $avail;
+                }
+            } elseif ($mode === 'proportionnel') {
+                // Nouvelle formule : pour chaque besoin, on calcule floor(stock / besoin) et on alloue min(besoin, stock)
+                // Calculer toutes les allocations avec le stock initial (ne pas décrémenter le stock entre les besoins)
+                $allocs = [];
+                $totalAllocated = 0;
+                foreach ($bitems as $item) {
+                    $bid = $item['id'];
+                    $needInitial = $item['initial'];
+                    if ($needInitial > 0 && $avail > 0) {
+                        $alloc = min($needInitial, floor($avail / $needInitial));
+                    } else {
+                        $alloc = 0;
+                    }
+                    $allocs[$bid] = $alloc;
+                    $totalAllocated += $alloc;
+                }
+                foreach ($bitems as $item) {
+                    $bid = $item['id'];
+                    $resultMap[$bid]['sim_donnee'] = $allocs[$bid];
+                    $resultMap[$bid]['sim_restant'] = $avail - $totalAllocated;
+                }
+            } else {
+                // fallback: priorité (plus ancien)
+                usort($bitems, function ($a, $b) {
+                    if ($a['date_ts'] === $b['date_ts']) return $a['id'] <=> $b['id'];
+                    return $a['date_ts'] <=> $b['date_ts'];
+                });
+                foreach ($bitems as $item) {
+                    $bid = $item['id'];
+                    $needInitial = $item['initial'];
+                    $alloc = min($needInitial, $avail);
+                    $resultMap[$bid]['sim_donnee'] = $alloc;
+                    $avail -= $alloc;
+                    $resultMap[$bid]['sim_restant'] = $avail;
+                }
             }
-            // remaining group stock after allocation
-            $remainingAfter = max(0, ($availableGroup[$gkey] ?? 0) - $allocatedTotal);
-            foreach ($bitems as $item) {
-                $bid = $item['id'];
-                $resultMap[$bid]['sim_restant'] = $remainingAfter;
-            }
-            $availableGroup[$gkey] = $remainingAfter;
         }
 
         // For besoins that don't belong to any group (no matching dons), leave sim_restant as 0 and sim_donnee 0

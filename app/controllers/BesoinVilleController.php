@@ -35,18 +35,19 @@ class BesoinVilleController
             return ['status' => 'error', 'message' => 'Besoin not found'];
         }
     }
-    public function addBesoin($idVille, $idDons, $quantite, $prixUnitaire)
+
+    public function addBesoin($idVille, $idModeleDons, $quantite, $prixUnitaire)
     {
-        if (BesoinVilleModel::addBesoin($idVille, $idDons, $quantite, $prixUnitaire)) {
+        if (BesoinVilleModel::addBesoin($idVille, $idModeleDons, $quantite, $prixUnitaire)) {
             return ['status' => 'success', 'message' => 'Besoin added successfully'];
         } else {
             return ['status' => 'error', 'message' => 'Failed to add besoin']; 
         }
     }
 
-    public function updateBesoin($id, $idVille, $idDons, $quantite, $prixUnitaire)
+    public function updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire)
     {
-        if (BesoinVilleModel::updateBesoin($id, $idVille, $idDons, $quantite, $prixUnitaire)) {
+        if (BesoinVilleModel::updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire)) {
             return ['status' => 'success', 'message' => 'Besoin updated successfully'];
         } else {
             return ['status' => 'error', 'message' => 'Failed to update besoin'];

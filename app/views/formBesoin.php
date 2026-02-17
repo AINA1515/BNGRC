@@ -149,10 +149,10 @@
                                                                                     <div class="besoin-row mb-3 row">
                                                                                         <div class="col-5">
                                                                                             <label>Don</label>
-                                                                                            <select name="don[]" class="form-control" required>
+                                                                                            <select name="modeleDon[]" class="form-control" required>
                                                                                                 <option value="">-- Choisir un don --</option>
-                                                                                                <?php if (!empty($donsAll)) { foreach ($donsAll as $d) { ?>
-                                                                                                    <option value="<?= htmlspecialchars($d['id']) ?>"><?= htmlspecialchars($d['nom']) ?></option>
+                                                                                                <?php if (!empty($modelesAll)) { foreach ($modelesAll as $m) { ?>
+                                                                                                    <option value="<?= htmlspecialchars($m['id']) ?>"><?= htmlspecialchars($m['nom']) ?></option>
                                                                                                 <?php } } ?>
                                                                                             </select>
                                                                                         </div>
@@ -162,7 +162,7 @@
                                                                                         </div>
                                                                                         <div class="col-2">
                                                                                             <label>P.U</label>
-                                                                                            <input type="number" step="0.01" name="pu[]" class="form-control" required>
+                                                                                            <input type="number" step="0.01" name="pu[]" class="form-control">
                                                                                         </div>
                                                                                         <div class="col-3">
                                                                                             <label>Date</label>
