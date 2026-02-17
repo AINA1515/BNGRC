@@ -60,6 +60,13 @@ insert into historiqueDons (idDons, date_, idVille) values
 (3, '2023-10-03 12:00:00', 3),
 (4, '2023-10-04 13:00:00', 4),
 (5, '2023-10-05 14:00:00', 5),
-(6, '2023-10-06 15:00:00', 1)
+(6, '2023-10-06 15:00:00', 1);
 -- Pour stress test, ajouter des milliers d'entrées similaires si besoin
-;
+
+insert into distribution (idBesoins, idVille, date_, quantiteBesoinDepart, quantiteBesoinRestant, quantiteDonsInitiale, quantiteDonsDistribue) values
+(1, 1, '2023-10-01 10:00:00', 100, 50, 100, 50),
+(2, 2, '2023-10-02 11:00:00', 200, 100, 200, 100),
+(3, 3, '2023-10-03 12:00:00', 150, 75, 150, 75),
+(4, 1, '2023-10-04 13:00:00', 300, 150, 300, 150),
+(5, 2, '2023-10-05 14:00:00', 120, 60, 120, 60),
+(1, 3, '2023-10-06 15:00:00', 500, 250, 500, 250);

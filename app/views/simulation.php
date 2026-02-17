@@ -259,13 +259,36 @@
                                 });
                             }
                         }
-                    })
-                    .catch(err => {
+                    }).catch(err => {
                         clearInterval(interval);
                         btn.disabled = false;
                         btn.innerHTML = original;
                         alert('Erreur lors de la simulation');
                     });
+            });
+
+            // When user clicks the button again (now labeled 'Appliquer la simulation') send POST to apply
+            btn.addEventListener('click', function applyHandler(e) {
+                if (btn.innerText && btn.innerText.trim().toLowerCase().startsWith('appliquer')) {
+                    btn.disabled = true;
+                    btn.innerText = 'Application en cours...';
+                    // read mode from the select element at apply time
+                    const applyMode = document.getElementById('simMode')?.value || 'priorite';
+                    fetch('<?= BASE_URL ?>/simulation/apply', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'mode=' + encodeURIComponent(applyMode) })
+                        .then(r => r.json())
+                        .then(resp => {
+                            btn.disabled = false;
+                            if (resp && resp.success) {
+                                // reload to show updated entrepot-aware views
+                                window.location.reload();
+                            } else {
+                                alert('Échec de l\'application: ' + (resp.error || 'Erreur inconnue'));
+                            }
+                        }).catch(err => {
+                            btn.disabled = false;
+                            alert('Erreur lors de l\'application: ' + err.message);
+                        });
+                }
             });
 
             if (cancelBtn) {

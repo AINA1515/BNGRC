@@ -43,7 +43,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="<?= BASE_URL ?>/formDons">
+                            <a class="nav-link" href="<?= BASE_URL ?>/formModelDons">
                                 Model Don
                             </a>
                         </li>
@@ -51,10 +51,16 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="<?= BASE_URL ?>/simulation">
-                    <i class="mdi mdi-playlist-play menu-icon"></i>
-                    <span class="menu-title">Simulation</span>
-                </a>
+                            <a class="nav-link" href="<?= BASE_URL ?>/simulation">
+                                <i class="mdi mdi-playlist-play menu-icon"></i>
+                                <span class="menu-title">Simulation</span>
+                            </a>
             </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?= BASE_URL ?>/distribution">
+                                <i class="mdi mdi-cash-multiple menu-icon"></i>
+                                <span class="menu-title">Distribution</span>
+                            </a>
+                        </li>
         </ul>
     </nav>
