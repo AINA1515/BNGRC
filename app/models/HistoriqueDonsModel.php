@@ -6,6 +6,20 @@ use Flight;
 
 class HistoriqueDonsModel
 {
+
+public static function addHistorique($idVille, $idDons, $quantite, $date_ = null, $db = null)
+    {
+        if ($db === null) $db = \Flight::db();
+        $query = "INSERT INTO historiqueDons (idVille, idDons, quantite, date_) VALUES (:idVille, :idDons, :quantite, :date_)";
+        $stmt = $db->prepare($query);
+        $params = [
+            ':idVille' => (int)$idVille,
+            ':idDons' => (int)$idDons,
+            ':quantite' => (int)$quantite,
+            ':date_' => $date_ ?? date('Y-m-d H:i:s')
+        ];
+        return $stmt->execute($params);
+    }
     /**
      * Get all donation history records.
      *

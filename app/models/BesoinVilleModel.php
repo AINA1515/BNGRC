@@ -73,10 +73,11 @@ class BesoinVilleModel
         return $ok;
     }
 
-    public static function updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire)
+    public static function updateBesoin($id, $idVille, $idModeleDons, $quantite, $prixUnitaire, $db = null)
     {
+        if ($db === null) $db = \Flight::db();
         $query = "UPDATE besoinsVille SET idVille = :idVille, idModeleDons = :idModeleDons, quantite = :quantite, prixUnitaire = :prixUnitaire WHERE id = :id";
-        $stmt = Flight::db()->prepare($query);
+        $stmt = $db->prepare($query);
         $stmt->bindValue(':id', (int)$id, \PDO::PARAM_INT);
         $stmt->bindValue(':idVille', (int)$idVille, \PDO::PARAM_INT);
         $stmt->bindValue(':idModeleDons', (int)$idModeleDons, \PDO::PARAM_INT);
@@ -88,10 +89,11 @@ class BesoinVilleModel
         }
         return $stmt->execute();
     }
-    public static function deleteBesoin($id)
+    public static function deleteBesoin($id, $db = null)
     {
+        if ($db === null) $db = \Flight::db();
         $query = "DELETE FROM besoinsVille WHERE id = :id";
-        $stmt = Flight::db()->prepare($query);
+        $stmt = $db->prepare($query);
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         return $stmt->execute();
     }
@@ -334,22 +336,55 @@ class BesoinVilleModel
                     $resultMap[$bid]['sim_restant'] = $avail;
                 }
             } elseif ($mode === 'proportionnel') {
-                // Nouvelle formule : pour chaque besoin, on calcule floor(stock / besoin) et on alloue min(besoin, stock)
-                // Calculer toutes les allocations avec le stock initial (ne pas décrémenter le stock entre les besoins)
+                // Nouvelle formule : S = somme des besoins, allocation = min(besoin, floor(stock * besoin / S)), puis redistribuer les restes 1 à 1 selon la plus grande partie décimale
+                $S = 0;
+                foreach ($bitems as $item) {
+                    $S += $item['initial'];
+                }
                 $allocs = [];
+                $theoriques = [];
                 $totalAllocated = 0;
                 foreach ($bitems as $item) {
                     $bid = $item['id'];
                     $needInitial = $item['initial'];
-                    if ($needInitial > 0 && $avail > 0) {
-                        $alloc = min($needInitial, floor($avail / $needInitial));
+                    if ($needInitial > 0 && $avail > 0 && $S > 0) {
+                        $theorique = $avail * $needInitial / $S;
+                        $alloc = min($needInitial, floor($theorique));
+                        $theoriques[$bid] = $theorique;
                     } else {
                         $alloc = 0;
+                        $theoriques[$bid] = 0;
                     }
                     $allocs[$bid] = $alloc;
                     $totalAllocated += $alloc;
                 }
-                $stockFinal = $avail - $totalAllocated;
+                // Redistribuer les restes 1 à 1 selon la plus grande partie décimale
+                $reste = $avail - $totalAllocated;
+                if ($reste > 0) {
+                    // Calculer la partie décimale pour chaque besoin
+                    $decimales = [];
+                    foreach ($bitems as $item) {
+                        $bid = $item['id'];
+                        // On ne redistribue que si l'allocation n'a pas déjà saturé le besoin
+                        if ($allocs[$bid] < $item['initial']) {
+                            $decimales[$bid] = $theoriques[$bid] - floor($theoriques[$bid]);
+                        }
+                    }
+                    // Trier les besoins par partie décimale décroissante
+                    arsort($decimales);
+                    $ids = array_keys($decimales);
+                    $i = 0;
+                    while ($reste > 0 && count($ids) > 0) {
+                        $bid = $ids[$i % count($ids)];
+                        // On ne dépasse pas le besoin initial
+                        if ($allocs[$bid] < $bitems[array_search($bid, array_column($bitems, 'id'))]['initial']) {
+                            $allocs[$bid]++;
+                            $reste--;
+                        }
+                        $i++;
+                    }
+                }
+                $stockFinal = $avail - array_sum($allocs);
                 foreach ($bitems as $item) {
                     $bid = $item['id'];
                     $resultMap[$bid]['sim_donnee'] = $allocs[$bid];

@@ -38,8 +38,9 @@
                                             <option value="min">Plus petit besoin</option>
                                             <option value="proportionnel">Proportionnel</option>
                                         </select>
-                                        <button id="simulateBtn" class="btn btn-warning" type="button">Simuler l'affectation des dons</button>
-                                        <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none" type="button">Annuler la simulation</button>
+                                        <button id="simulateBtn" class="btn btn-warning" type="button">Lancer la simulation</button>
+                                        <button id="applySimBtn" class="btn btn-success" style="display:none" type="button">Appliquer</button>
+                                        <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none" type="button">Annuler</button>
                                     </form>
 
                                     <div class="row">
@@ -178,6 +179,7 @@
 
             const btn = document.getElementById('simulateBtn');
             if (!btn) return;
+            const applyBtn = document.getElementById('applySimBtn');
             const cancelBtn = document.getElementById('cancelSimBtn');
             btn.addEventListener('click', function() {
                 btn.disabled = true;
@@ -193,8 +195,9 @@
                     .then(r => r.json())
                     .then(data => {
                         clearInterval(interval);
-                        btn.innerHTML = 'Appliquer la simulation';
+                        btn.innerHTML = 'Lancer la simulation';
                         btn.disabled = false;
+                        if (applyBtn) applyBtn.style.display = 'inline-block';
                         if (cancelBtn) cancelBtn.style.display = 'inline-block';
                         if (data && Array.isArray(data.result) && data.result.length > 0) {
                             // Calcul dynamique du stock restant par modèle (après toutes les distributions)
@@ -288,9 +291,16 @@
                 }
             });
 
+            if (applyBtn) {
+                applyBtn.addEventListener('click', function() {
+                    // Redirige vers la page de traitement (route à définir)
+                    window.location.href = '<?= BASE_URL ?>/apply-simulation';
+                });
+            }
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', function() {
                     cancelBtn.style.display = 'none';
+                    if (applyBtn) applyBtn.style.display = 'none';
                     document.querySelectorAll('tr[data-besoin-id]').forEach(tr => {
                         const donneeEl = tr.querySelector('.bs-donnee');
                         const restantEl = tr.querySelector('.bs-restant');

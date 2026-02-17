@@ -18,7 +18,7 @@ class DistributionController
     public function index()
     {
         // Show distribution UI: list of besoins that can be purchased (type argent) and recent distributions
-        $besoins = \app\models\BesoinVilleModel::getBesoinsForForm();
+        $besoins = \app\models\BesoinVilleModel::getAllBesoins();
         $distributions = DistributionModel::getRecentDistributions();
         $types = \app\models\TypeDonsModel::getAllTypes();
         $modeles = \app\models\ModeleDonsModel::getAllModeles();
