@@ -58,10 +58,11 @@
 
 
 <!-- Partie code  To Do -->
+Bryan Aina Tianiana
 <!-- ======================================================================================= -->
 # V1
 
-# Conception de base OK
+# Conception de base OK Bryan
 Table a creer : ok -ville
                 ok -typeDons
                 ok -dons
@@ -74,7 +75,7 @@ Views a creer : ok -vue_besoins_par_ville
 
 Donne de Test : dans data.sql ok
 
-# Models a utiliser OK 
+# Models a utiliser OK Aina and Bryan
 
 ok VilleModel : CRUD basique  
 
@@ -92,17 +93,17 @@ ok VueHistoriqueModel() : getView(), getHistoriqueByTypeDon(), getHistoriqueByNo
 
 ok VueBesoinsParVilleModel : getView(), getByIdVille(), getByIdVilleAndTypeDon(), getByIdVilleAndNomDon(), getTotalMontantByVille(), getQuantiteParType()
 
-# Controller OK
+# Controller OK Tianiana
 
 ok VilleController 
 ok BesoinController
 ok DonController
 ok SimulationController
 
-# DESIGN OK
+# DESIGN OK Tianiana
     ok -Choix de Templates
 
-# INTEGRATION OK 
+# INTEGRATION OK Aina
     ok =>Definir les Routes get et post,Gerer recuperation parametres
     ok - dashboard.php {
         Affichage pour chaque ville => Besoins, Date, Quantite, PU, Prix Totale
@@ -114,7 +115,7 @@ ok SimulationController
 <!-- ======================================================================================= -->
 # V2
 
-# Conception de base OK
+# Conception de base OK Bryan
 
 Table a creer :
     ok -achat
@@ -134,7 +135,7 @@ Donne de Test :
     ok -besoins restants
     ok -frais achat par defaut
 
-# Models a utiliser : OK
+# Models a utiliser : OK Aina
 
 ok DonsModel :
     -getMontantRestantArgent()
@@ -164,13 +165,13 @@ ok SimulationModel (V2 simple) :
     -simulerDispatchArgent()
     -validerDispatchArgent()
 
-# Controller OK
+# Controller OK Aina
     ok AchatController
     ok RecapController
     ok ConfigurationController
     ok SimulationController (maj logique V2)
 
-# DESIGN OK
+# DESIGN OK Tianiana
     ok -achat.php
     ok -besoins_restants.php
     ok -recap.php
@@ -179,7 +180,7 @@ ok SimulationModel (V2 simple) :
     ok -bouton Actualiser (Ajax)
     ok -message erreur dynamique
 
-# INTEGRATION OK
+# INTEGRATION OK Tianiana
     ok -route GET/POST achat
     ok -route GET recap
     ok -route GET recap/data (Ajax)
@@ -192,7 +193,7 @@ ok SimulationModel (V2 simple) :
 <!-- ======================================================================================= -->
 # V3
 
-# Conception de base OK
+# Conception de base OK Bryan
 
 Table a creer :
     ok -distribution_log
@@ -209,7 +210,7 @@ Donne de Test : dans data.sql ok
     ok -besoins avec dates differentes
     ok -cas proportionnel
 
-# Models a utiliser OK
+# Models a utiliser OK Bryan
 ok SimulationModel :
     -simulerFIFO()
     -simulerPlusPetitBesoin()
@@ -228,14 +229,14 @@ ok BesoinVilleModel (maj) :
 ok VueSimulationDetailModel :
     -getResultatSimulation()
 
-# Controller OK
+# Controller OK Aina
 
 ok SimulationController (maj V3)
     -GET /simulation
     -POST /simulation/run
     -POST /simulation/validate
 
-# INTEGRATION OK
+# INTEGRATION OK Tianiana
     ok -tri par date pour Premier Demandeur
     ok -tri par quantite croissante pour petit besoin
     ok -calcul proportionnel

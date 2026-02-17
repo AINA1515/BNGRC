@@ -39,7 +39,12 @@
                                             <option value="proportionnel">Proportionnel</option>
                                         </select>
                                         <button id="simulateBtn" class="btn btn-warning" type="button">Simuler l'affectation des dons</button>
+                                        <button id="applySimBtn" class="btn btn-success" style="display:none" type="button">Appliquer la simulation</button>
                                         <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none" type="button">Annuler la simulation</button>
+                                        <!-- BOUTON RÉINITIALISER - Recharge depuis la base -->
+                                        <button id="resetSimBtn" class="btn btn-outline-primary" type="button">
+                                            <i class="mdi mdi-refresh"></i> Recharger données
+                                        </button>
                                     </form>
 
                                     <div class="row">
@@ -177,8 +182,12 @@
             document.addEventListener('DOMContentLoaded', initSimulationTable);
 
             const btn = document.getElementById('simulateBtn');
-            if (!btn) return;
+            const applyBtn = document.getElementById('applySimBtn');
             const cancelBtn = document.getElementById('cancelSimBtn');
+            const resetBtn = document.getElementById('resetSimBtn');
+            
+            if (!btn) return;
+            
             btn.addEventListener('click', function() {
                 btn.disabled = true;
                 const original = btn.innerHTML;
@@ -193,8 +202,10 @@
                     .then(r => r.json())
                     .then(data => {
                         clearInterval(interval);
-                        btn.innerHTML = 'Appliquer la simulation';
+                        btn.innerHTML = 'Simulation en cours...';
                         btn.disabled = false;
+                        btn.style.display = 'none';
+                        if (applyBtn) applyBtn.style.display = 'inline-block';
                         if (cancelBtn) cancelBtn.style.display = 'inline-block';
                         if (data && Array.isArray(data.result) && data.result.length > 0) {
                             // Calcul dynamique du stock restant par modèle (après toutes les distributions)
@@ -256,7 +267,8 @@
                                 });
                             }
                         }
-                    }).catch(err => {
+                    })
+                    .catch(err => {
                         clearInterval(interval);
                         btn.disabled = false;
                         btn.innerHTML = original;
@@ -264,33 +276,14 @@
                     });
             });
 
-            // When user clicks the button again (now labeled 'Appliquer la simulation') send POST to apply
-            btn.addEventListener('click', function applyHandler(e) {
-                if (btn.innerText && btn.innerText.trim().toLowerCase().startsWith('appliquer')) {
-                    btn.disabled = true;
-                    btn.innerText = 'Application en cours...';
-                    // read mode from the select element at apply time
-                    const applyMode = document.getElementById('simMode')?.value || 'priorite';
-                    fetch('<?= BASE_URL ?>/simulation/apply', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'mode=' + encodeURIComponent(applyMode) })
-                        .then(r => r.json())
-                        .then(resp => {
-                            btn.disabled = false;
-                            if (resp && resp.success) {
-                                // reload to show updated entrepot-aware views
-                                window.location.reload();
-                            } else {
-                                alert('Échec de l\'application: ' + (resp.error || 'Erreur inconnue'));
-                            }
-                        }).catch(err => {
-                            btn.disabled = false;
-                            alert('Erreur lors de l\'application: ' + err.message);
-                        });
-                }
-            });
-
             if (cancelBtn) {
                 cancelBtn.addEventListener('click', function() {
                     cancelBtn.style.display = 'none';
+                    if (applyBtn) applyBtn.style.display = 'none';
+                    if (btn) {
+                        btn.style.display = 'inline-block';
+                        btn.innerHTML = 'Simuler l\'affectation des dons';
+                    }
                     document.querySelectorAll('tr[data-besoin-id]').forEach(tr => {
                         const donneeEl = tr.querySelector('.bs-donnee');
                         const restantEl = tr.querySelector('.bs-restant');
@@ -303,6 +296,23 @@
                         delete tr.dataset.simDonnee;
                         delete tr.dataset.simRestant;
                     });
+                });
+            }
+
+            // BOUTON RÉINITIALISER - Recharge les données depuis la base
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    // Demander confirmation
+                    if (!confirm('Recharger les données depuis la base ? Les modifications non appliquées seront perdues.')) {
+                        return;
+                    }
+                    
+                    // Afficher un indicateur de chargement
+                    resetBtn.disabled = true;
+                    resetBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Rechargement...';
+                    
+                   
+                    window.location.reload();
                 });
             }
         })();
