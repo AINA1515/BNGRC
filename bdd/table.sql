@@ -2,10 +2,13 @@ drop database if exists BNGRC;
 create database BNGRC;
 use BNGRC;
 
+drop table if exists distribution;
 drop table if exists besoinsVille;
 drop table if exists historiqueDons;
+drop table if exists achat;
 drop table if exists dons;
 drop table if exists ville;
+drop table if exists entrepot;
 drop table if exists modeleDons;
 drop table if exists typeDons;
 
@@ -59,6 +62,37 @@ create table besoinsVille(
     quantite int,
     prixUnitaire decimal(8,2),
     foreign key (idVille) references ville(id),
+    foreign key (idModeleDons) references modeleDons(id)
+);
+
+create table achat(
+    id int primary key auto_increment,
+    idDons int,
+    date_ datetime,
+    quantite int,
+    pourcentageAchat decimal(5,2),
+    prixUnitaire decimal(8,2),
+    foreign key (idDons) references dons(id)
+);
+
+create table distribution(
+    id int primary key auto_increment,
+    idBesoins int,
+    idVille int,
+    date_ datetime,
+    quantiteBesoinDepart int,
+    quantiteBesoinRestant int,
+    quantiteDonsInitiale int,
+    quantiteDonsDistribue int,
+    prixUnitaire decimal(8,2),
+    foreign key (idBesoins) references besoinsVille(id),
+    foreign key (idVille) references ville(id)
+);
+
+create table entrepot(
+    id int primary key auto_increment,
+    idModeleDons int not null,
+    quantite int,
     foreign key (idModeleDons) references modeleDons(id)
 );
 
