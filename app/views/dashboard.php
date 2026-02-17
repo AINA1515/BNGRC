@@ -50,6 +50,13 @@
               <i class="menu-arrow"></i>
             </a>
 
+          <li class="nav-item">
+            <a class="nav-link" href="<?= BASE_URL ?>/simulation">
+              <i class="mdi mdi-playlist-play menu-icon"></i>
+              <span class="menu-title">Simulation</span>
+            </a>
+          </li>
+
             <div class="collapse" id="formsMenu">
               <ul class="nav flex-column sub-menu">
 

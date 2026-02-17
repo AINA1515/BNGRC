@@ -58,6 +58,12 @@
               </ul>
             </div>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= BASE_URL ?>/simulation">
+              <i class="mdi mdi-playlist-play menu-icon"></i>
+              <span class="menu-title">Simulation</span>
+            </a>
+          </li>
         </ul>
       </nav>
       <div class="main-panel">
