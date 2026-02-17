@@ -68,10 +68,10 @@ return [
 	 **************************************/
 	'database' => [
 		// MySQL Example:
-		'host'     => '172.16.7.97',      // Database host (e.g., 'localhost', 'db.example.com')
-		'dbname'   => 'db_s2_ETU003928',   // Database name (e.g., 'flightphp')
-		'user'     => 'ETU003928',  // Database user (e.g., 'root')
-		'password' => 'EsD7zLUH',  // Database password (never commit real passwords)
+		'host'     => 'localhost',      // Database host (e.g., 'localhost', 'db.example.com')
+		'dbname'   => 'BNGRC',   // Database name (e.g., 'flightphp')
+		'user'     => 'root',  // Database user (e.g., 'root')
+		'password' => '',  // Database password (never commit real passwords)
 
 		// 		'host'     => '172.16.7.97',      // Database host (e.g., 'localhost', 'db.example.com')
 		// 'dbname'   => 'db_s2_ETU003928',   // Database name (e.g., 'flightphp')
