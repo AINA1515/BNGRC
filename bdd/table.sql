@@ -56,6 +56,7 @@ create table historiqueDons(
 
 create table besoinsVille(
     id int primary key auto_increment,
+    ordre int,
     idVille int,
     idModeleDons int not null,
     date_ datetime,
