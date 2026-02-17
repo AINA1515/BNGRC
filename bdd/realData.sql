@@ -50,3 +50,9 @@ insert into besoinsVille (idVille, ordre,idModeleDons, date_, quantite, prixUnit
 (5, 9  , 6 , '2026-02-15 15:00:00', 10000, 150.00),
 (5, 25 , 7 , '2026-02-16 16:00:00', 1, 100000000.00),
 (1, 6  , 8 , '2026-02-15 17:00:00', 6750000, 3.00);
+
+-- Add money donations (argent) for testing
+insert into dons (idModeleDons, idTypeDons, quantite, prixUnitaire, date_) values
+(5, 3, 50000, 1.00, '2026-02-15 08:00:00'),
+(5, 3, 30000, 1.00, '2026-02-15 09:00:00'),
+(5, 3, 20000, 1.00, '2026-02-16 10:00:00');

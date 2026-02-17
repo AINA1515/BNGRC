@@ -23,18 +23,20 @@ class DistributionController
         $types = \app\models\TypeDonsModel::getAllTypes();
         $modeles = \app\models\ModeleDonsModel::getAllModeles();
 
-        // Compute available money donations (total donations of type 'Argent' minus purchases in achat)
-        $typeArgent = \app\models\TypeDonsModel::getTypeByName('Argent');
+        // Compute available money: remaining quantity of money donations (dons table, not spent in achat)
+        // The "remaining" quantity in dons is what hasn't been consumed yet
+        $typeArgent = \app\models\TypeDonsModel::getTypeByName('argent');
         $typeArgentId = $typeArgent ? (int)$typeArgent['id'] : 0;
         $totalMoney = 0.0;
         if ($typeArgentId > 0) {
             $donsMoney = \app\models\DonsModel::getDonationsByIdType($typeArgentId);
+            // Sum remaining quantity (what's left in dons table after purchases)
             foreach ($donsMoney as $d) {
-                $totalMoney += ((float)($d['quantite'] ?? 0)) * ((float)($d['prixUnitaire'] ?? 0));
+                $quantiteRemaining = (int)($d['quantite'] ?? 0);
+                $prixUnitaire = (float)($d['prixUnitaire'] ?? 0);
+                $totalMoney += $quantiteRemaining * $prixUnitaire;
             }
         }
-    $totalSpent = (float)\Flight::db()->query('SELECT COALESCE(SUM(quantite * prixUnitaire * (1 + pourcentageAchat/100)),0) FROM achat')->fetchColumn();
-        $availableMoney = max(0, $totalMoney - $totalSpent);
 
         $this->app->render('distribution', [
             'csp_nonce' => $this->app->get('csp_nonce'),
@@ -42,38 +44,42 @@ class DistributionController
             'distributions' => $distributions,
             'types' => $types,
             'modeles' => $modeles,
-            'availableMoney' => $availableMoney,
+            'availableMoney' => $totalMoney,
         ]);
     }
 
     /**
      * Buy items for a besoin using money donations (type 'Argent')
-     * Expects POST: idBesoin, quantiteToBuy, pourcentageAchat (optional)
+     * Expects POST: besoinId OR distributionId, quantiteToBuy, pourcentageAchat (optional)
      */
     public function purchase()
     {
         $req = $this->app->request();
+        $besoinId = (int)($req->data->besoinId ?? 0);
         $distributionId = (int)($req->data->distributionId ?? 0);
         $quantiteToBuy = (int)($req->data->quantiteToBuy ?? 0);
         $pourcentage = isset($req->data->pourcentageAchat) ? (float)$req->data->pourcentageAchat : null;
 
-        if ($distributionId <= 0 || $quantiteToBuy <= 0) {
+        // If besoinId is provided, use it directly; otherwise try distributionId
+        if ($besoinId <= 0 && $distributionId > 0) {
+            $distribution = DistributionModel::getById($distributionId);
+            if (!$distribution) {
+                $this->app->halt(404, 'Distribution row not found');
+            }
+            $besoinId = (int)$distribution['idBesoins'];
+        }
+
+        if ($besoinId <= 0 || $quantiteToBuy <= 0) {
             $this->app->halt(400, 'Invalid parameters');
         }
 
-        $distribution = DistributionModel::getById($distributionId);
-        if (!$distribution) {
-            $this->app->halt(404, 'Distribution row not found');
-        }
-
-        $idBesoin = (int)$distribution['idBesoins'];
-        $besoin = \app\models\BesoinVilleModel::getBesoinsById($idBesoin);
+        $besoin = \app\models\BesoinVilleModel::getBesoinsById($besoinId);
         if (!$besoin) {
             $this->app->halt(404, 'Besoin not found');
         }
 
         // Determine available money donations (type 'Argent') grouped
-        $typeArgent = \app\models\TypeDonsModel::getTypeByName('Argent');
+        $typeArgent = \app\models\TypeDonsModel::getTypeByName('argent');
         $typeArgentId = $typeArgent ? (int)$typeArgent['id'] : 0;
 
         // Compute total money available
@@ -98,8 +104,9 @@ class DistributionController
         $cost *= (1 + $appliedPourcentage / 100.0);
 
         if ($totalMoney < $cost) {
-            // Not enough money
-            $this->app->redirect('/distribution?purchase=insufficient');
+            // Not enough money - store error details in session or query param
+            $shortfall = $cost - $totalMoney;
+            $this->app->redirect('/distribution?purchase=insufficient&needed=' . number_format($cost, 2) . '&available=' . number_format($totalMoney, 2) . '&shortfall=' . number_format($shortfall, 2));
             return;
         }
 
@@ -138,12 +145,27 @@ class DistributionController
         $newBesoinQty = max(0, (int)$besoin['quantite'] - $quantiteToBuy);
         \app\models\BesoinVilleModel::updateBesoin((int)$besoin['id'], (int)$besoin['idVille'], (int)$besoin['idModeleDons'], $newBesoinQty, $besoin['prixUnitaire'] ?? null);
 
-        // Update distribution row to mark distributed quantity and remaining besoin
-        DistributionModel::updateDistribution($distributionId, [
-            'quantiteBesoinRestant' => $newBesoinQty,
-            'quantiteDonsDistribue' => ((int)$distribution['quantiteDonsDistribue'] + $quantiteToBuy),
-            'date_' => date('Y-m-d H:i:s')
-        ]);
+        // Create or update distribution row
+        if ($distributionId > 0) {
+            // Update existing distribution row
+            DistributionModel::updateDistribution($distributionId, [
+                'quantiteBesoinRestant' => $newBesoinQty,
+                'quantiteDonsDistribue' => ((int)($distribution['quantiteDonsDistribue'] ?? 0) + $quantiteToBuy),
+                'date_' => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            // Create new distribution row (for direct besoin purchases)
+            DistributionModel::createDistribution([
+                'idBesoins' => $besoinId,
+                'idVille' => (int)$besoin['idVille'],
+                'date_' => date('Y-m-d H:i:s'),
+                'quantiteBesoinDepart' => (int)$besoin['quantite'] + $quantiteToBuy,
+                'quantiteBesoinRestant' => $newBesoinQty,
+                'quantiteDonsInitiale' => 0,
+                'quantiteDonsDistribue' => $quantiteToBuy,
+                'prixUnitaire' => (float)$besoin['prixUnitaire']
+            ]);
+        }
 
         // Insert achat record
         $q = \Flight::db()->prepare('INSERT INTO achat (idDons, date_, quantite, pourcentageAchat, prixUnitaire) VALUES (:idDons, :date_, :quantite, :pourcentage, :prix)');

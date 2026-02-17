@@ -375,6 +375,15 @@ $router->post('/simulation/apply', function () use ($app) {
 				'quantiteDonsDistribue' => $alloc,
 				'prixUnitaire' => $prix
 			]);
+			// Update the besoin's remaining quantity
+			try {
+				$newBesoinQte = max(0, $initial - $alloc);
+				\app\models\BesoinVilleModel::updateBesoin($besoinId, $idVille, $idModele, $newBesoinQte, $prix);
+			} catch (\Exception $e) {
+				// log and continue; transaction will roll back on thrown exception
+				error_log('Failed to update besoin #' . $besoinId . ': ' . $e->getMessage());
+				throw $e;
+			}
 			// Decrement entrepot for this modele
 			if ($idModele) {
 				\app\models\EntrepotModel::removeStock($idModele, $alloc);
@@ -396,6 +405,51 @@ $router->get('/simulation', function () use ($app) {
 		'csp_nonce' => $app->get('csp_nonce'),
 		'besoinVilles' => $besoinVilles,
 	]);
+});
+
+// Reinitialize: clear all data and reload from realData.sql
+$router->post('/reinitialize', function () use ($app) {
+	header('Content-Type: application/json');
+	$confirm = $app->request()->data->confirm ?? '';
+	if ($confirm !== 'yes') {
+		echo json_encode(['success' => false, 'error' => 'Confirmation required']);
+		return;
+	}
+	try {
+		$db = Flight::db();
+		// Disable foreign key checks temporarily
+		$db->exec('SET FOREIGN_KEY_CHECKS=0');
+		// Truncate all data tables (keep schema)
+		$db->exec('TRUNCATE TABLE distribution');
+		$db->exec('TRUNCATE TABLE historiqueDons');
+		$db->exec('TRUNCATE TABLE achat');
+		$db->exec('TRUNCATE TABLE besoinsVille');
+		$db->exec('TRUNCATE TABLE dons');
+		$db->exec('TRUNCATE TABLE entrepot');
+		$db->exec('TRUNCATE TABLE modeleDons');
+		$db->exec('TRUNCATE TABLE typeDons');
+		$db->exec('TRUNCATE TABLE ville');
+		$db->exec('SET FOREIGN_KEY_CHECKS=1');
+		// Re-import realData.sql
+		$realDataPath = ROOT_PATH . '/bdd/realData.sql';
+		if (!file_exists($realDataPath)) {
+			throw new \Exception('realData.sql not found at ' . $realDataPath);
+		}
+		$sql = file_get_contents($realDataPath);
+		// Split and execute each statement
+		$statements = array_filter(array_map('trim', preg_split('/;/', $sql)), function($s) {
+			return !empty($s) && !preg_match('/^\s*--/', $s) && !preg_match('/^\s*\/\*/', $s);
+		});
+		foreach ($statements as $stmt) {
+			if (trim($stmt)) {
+				$db->exec($stmt);
+			}
+		}
+		echo json_encode(['success' => true, 'message' => 'Database reinitialized']);
+	} catch (\Exception $e) {
+		error_log('Reinitialize error: ' . $e->getMessage());
+		echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+	}
 });
 
 // Route pour appliquer la simulation
