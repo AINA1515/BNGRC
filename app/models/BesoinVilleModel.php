@@ -349,10 +349,11 @@ class BesoinVilleModel
                     $allocs[$bid] = $alloc;
                     $totalAllocated += $alloc;
                 }
+                $stockFinal = $avail - $totalAllocated;
                 foreach ($bitems as $item) {
                     $bid = $item['id'];
                     $resultMap[$bid]['sim_donnee'] = $allocs[$bid];
-                    $resultMap[$bid]['sim_restant'] = $avail - $totalAllocated;
+                    $resultMap[$bid]['sim_restant'] = $stockFinal;
                 }
             } else {
                 // fallback: priorité (plus ancien)
