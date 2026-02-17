@@ -94,6 +94,18 @@
                       <button type="submit" class="btn btn-primary">Créer les dons</button>
                     </div>
                   </form>
+
+                  <hr />
+                  <h5>Ajouter un type de don</h5>
+                  <?php if (!empty($_GET['type_added'])): ?>
+                    <div class="alert alert-success">Type ajouté avec succès.</div>
+                  <?php endif; ?>
+                  <form action="<?= BASE_URL ?>/type/add" method="POST" class="mt-2">
+                    <div class="input-group">
+                      <input type="text" name="name" class="form-control" placeholder="Nom du type" required>
+                      <button class="btn btn-outline-primary" type="submit">Ajouter</button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>

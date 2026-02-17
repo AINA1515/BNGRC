@@ -101,6 +101,11 @@
 
                       <h4>Liste besoins</h4>
 
+                      <div class="d-flex justify-content-end mb-2 gap-2">
+                        <button id="simulateBtn" class="btn btn-warning">Simuler l'affectation des dons</button>
+                        <button id="cancelSimBtn" class="btn btn-outline-secondary" style="display:none">Annuler la simulation</button>
+                      </div>
+
                       <table class="table table-hover">
                         <thead>
                           <tr>
@@ -109,18 +114,20 @@
                             <th>Départ</th>
                             <th>Donnée</th>
                             <th>Restant</th>
+                            <th>Après</th>
                             <th>P.U</th>
                           </tr>
                         </thead>
 
                         <tbody>
                           <?php if (!empty($besoinVilles)): foreach ($besoinVilles as $b): ?>
-                              <tr>
+                              <tr data-besoin-id="<?= htmlspecialchars($b['id'] ?? '') ?>" data-real-donnee="<?= htmlspecialchars($b['donnee']) ?>" data-real-restant="<?= htmlspecialchars($b['restant']) ?>" data-initial="<?= htmlspecialchars($b['quantite']) ?>">
                                 <td><?= htmlspecialchars($b['nomVille']) ?></td>
                                 <td><?= htmlspecialchars($b['nomDon']) ?></td>
-                                <td><?= htmlspecialchars($b['quantite']) ?></td>
-                                <td><?= htmlspecialchars($b['donnee']) ?></td>
-                                <td><?= htmlspecialchars($b['restant']) ?></td>
+                                <td class="bs-depart"><?= htmlspecialchars($b['quantite']) ?></td>
+                                <td class="bs-donnee">0</td>
+                                <td class="bs-restant"><?= htmlspecialchars($b['restant']) ?></td>
+                                <td class="bs-apres"><?php $initial = (int)($b['quantite'] ?? 0); $realDon = min((int)($b['donnee'] ?? 0), $initial); echo htmlspecialchars($initial - $realDon); ?></td>
                                 <td><?= htmlspecialchars($b['prixUnitaire']) ?></td>
                               </tr>
                             <?php endforeach;
@@ -158,6 +165,13 @@
                 <div class="card-body">
 
                   <h4>Liste dons</h4>
+
+                  <div class="mb-3">
+                    <form action="<?= BASE_URL ?>/type/add" method="POST" class="d-flex gap-2 align-items-center">
+                      <input type="text" name="name" class="form-control" placeholder="Nouveau type de don" required>
+                      <button class="btn btn-sm btn-outline-primary" type="submit">Ajouter le type</button>
+                    </form>
+                  </div>
 
                   <table class="table table-hover">
                     <thead>
@@ -213,6 +227,93 @@
     var sinistreChartData = <?= json_encode($sinistreChartData ?? []) ?>;
   </script>
   <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/my_script.js"></script> <!-- <script nonce = "<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/Chart.roundedBarCharts.js"></script> --> <!-- End custom js for this page-->
+  <script nonce="<?= $csp_nonce ?>">
+    (function(){
+      const btn = document.getElementById('simulateBtn');
+      if (!btn) return;
+      const cancelBtn = document.getElementById('cancelSimBtn');
+      btn.addEventListener('click', function(){
+        btn.disabled = true;
+        const original = btn.innerHTML;
+        btn.innerHTML = 'Simulation en cours...';
+        // simple animation: dots
+        let dots = 0;
+        const interval = setInterval(()=>{ btn.innerHTML = 'Simulation en cours' + '.'.repeat(dots%4); dots++; }, 400);
+        const statusEl = document.getElementById('simulateStatus');
+        if (statusEl) statusEl.innerText = '';
+        fetch('<?= BASE_URL ?>/simulate')
+          .then(r => r.json())
+          .then(data => {
+            clearInterval(interval);
+            btn.innerHTML = 'Appliquer la simulation';
+            btn.disabled = false;
+            if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            // apply simulated values into table
+            if (data && Array.isArray(data.result) && data.result.length>0) {
+              data.result.forEach(row => {
+                let tr = document.querySelector('tr[data-besoin-id="'+row.id+'"]');
+                if (!tr) {
+                  // fallback: find by ville+don text
+                  const rows = Array.from(document.querySelectorAll('table.table tbody tr'));
+                  tr = rows.find(r => {
+                    const villeText = r.children[0] && r.children[0].innerText.trim();
+                    const donText = r.children[1] && r.children[1].innerText.trim();
+                    return villeText === row.idVille.toString() || donText === row.idDons.toString() || (villeText+"|"+donText) === ((row.idVille||'')+"|"+(row.idDons||''));
+                  });
+                }
+                if (tr) {
+                  const donneeEl = tr.querySelector('.bs-donnee');
+                  const restantEl = tr.querySelector('.bs-restant');
+                    const apresEl = tr.querySelector('.bs-apres');
+                  // store simulated values on the row for cancel
+                  tr.dataset.simDonnee = row.sim_donnee;
+                  tr.dataset.simRestant = row.sim_restant;
+                  if (donneeEl) donneeEl.innerText = row.sim_donnee;
+                  if (restantEl) restantEl.innerText = row.sim_restant;
+                    if (apresEl) {
+                      const initial = parseInt(tr.dataset.initial || '0', 10);
+                      apresEl.innerText = Math.max(0, initial - (row.sim_donnee || 0));
+                    }
+                  // highlight change
+                  tr.style.transition = 'background-color 0.6s ease';
+                  tr.style.backgroundColor = '#fff3cd';
+                  setTimeout(()=> tr.style.backgroundColor = '', 1200);
+                }
+              });
+            } else {
+              if (statusEl) statusEl.innerText = 'Aucun résultat de simulation';
+            }
+          })
+          .catch(err => {
+            clearInterval(interval);
+            btn.disabled = false;
+            btn.innerHTML = original;
+            alert('Erreur lors de la simulation');
+          });
+      });
+
+      // Cancel simulation: revert all rows to initial zeros
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function(){
+          // hide cancel
+          cancelBtn.style.display = 'none';
+          // reset all rows to the pre-simulation view: Donnee = 0, Restant = original group total
+          document.querySelectorAll('tr[data-besoin-id]').forEach(tr => {
+            const donneeEl = tr.querySelector('.bs-donnee');
+            const restantEl = tr.querySelector('.bs-restant');
+            const realRestant = tr.dataset.realRestant || tr.dataset.initial || '0';
+            const apresEl = tr.querySelector('.bs-apres');
+            const initial = parseInt(tr.dataset.initial || '0', 10);
+            if (donneeEl) donneeEl.innerText = '0';
+            if (restantEl) restantEl.innerText = realRestant;
+            if (apresEl) apresEl.innerText = Math.max(0, initial - 0);
+            delete tr.dataset.simDonnee;
+            delete tr.dataset.simRestant;
+          });
+        });
+      }
+    })();
+  </script>
 </body>
 
 </html>

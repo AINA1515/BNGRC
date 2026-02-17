@@ -56,8 +56,7 @@ class TypeDonsModel
     {
         $query = "INSERT INTO typeDons (nom) VALUES (:name)";
         $stmt = Flight::db()->prepare($query);
-        $stmt->bindParam(':name', $name, \PDO::PARAM_STR);
-        return $stmt->execute();
+        return $stmt->execute([':name' => $name]);
     }
     /**
      * Update an existing donation type.

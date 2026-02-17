@@ -20,6 +20,37 @@ class DonsController
         return $donations;
     }
 
+    /**
+     * Return donations normalized for the dashboard view (include type name and normalized keys)
+     *
+     * @return array
+     */
+    public function getAllForDashboard()
+    {
+        $donsRaw = DonsModel::getAggregatedDonations();
+        $typeMap = [];
+        $types = \app\models\TypeDonsModel::getAllTypes();
+        if (is_array($types)) {
+            foreach ($types as $t) {
+                $typeMap[$t['id'] ?? $t[0]] = $t['nom'] ?? ($t['name'] ?? '');
+            }
+        }
+
+        $dons = [];
+        if (is_array($donsRaw)) {
+            foreach ($donsRaw as $d) {
+                $dons[] = [
+                    'id' => $d['id'] ?? null,
+                    'nom' => $d['nom'] ?? ($d[0] ?? ''),
+                    'typeDon' => $typeMap[$d['idTypeDons'] ?? ($d[1] ?? null)] ?? '',
+                    'quantite' => $d['quantite'] ?? ($d['qte'] ?? null),
+                    'prixUnitaire' => $d['prixUnitaire'] ?? ($d['prix_unitaire'] ?? null)
+                ];
+            }
+        }
+        return $dons;
+    }
+
     public function getDonationById($id)
     {
         $donation = DonsModel::getDonationById($id);
