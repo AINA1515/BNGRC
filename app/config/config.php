@@ -57,6 +57,7 @@ $app->set('flight.content_length', false);    // Send content length header. Usu
 // Generate a CSP nonce for each request and store in $app
 $nonce = bin2hex(random_bytes(16));
 $app->set('csp_nonce', $nonce);
+	
 
 /**********************************************
  *           User Configuration               *
@@ -71,6 +72,11 @@ return [
 		'dbname'   => 'db_s2_ETU003928',   // Database name (e.g., 'flightphp')
 		'user'     => 'ETU003928',  // Database user (e.g., 'root')
 		'password' => 'EsD7zLUH',  // Database password (never commit real passwords)
+
+		// 		'host'     => '172.16.7.97',      // Database host (e.g., 'localhost', 'db.example.com')
+		// 'dbname'   => 'db_s2_ETU003928',   // Database name (e.g., 'flightphp')
+		// 'user'     => 'ETU003928',  // Database user (e.g., 'root')
+		// 'password' => 'EsD7zLUH',  // Database password (never commit real passwords)
 
 		// SQLite Example:
 		// 'file_path' => __DIR__ . $ds . '..' . $ds . 'database.sqlite', // Path to SQLite file

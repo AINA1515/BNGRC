@@ -7,25 +7,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>RelifFlow</title>
     <!-- plugins:css -->
-    <link rel="stylesheet" href="/assets/vendors/feather/feather.css">
-    <link rel="stylesheet" href="/assets/vendors/mdi/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="/assets/vendors/ti-icons/css/themify-icons.css">
-    <link rel="stylesheet" href="/assets/vendors/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/assets/vendors/typicons/typicons.css">
-    <link rel="stylesheet" href="/assets/vendors/simple-line-icons/css/simple-line-icons.css">
-    <link rel="stylesheet" href="/assets/vendors/css/vendor.bundle.base.css">
-    <link rel="stylesheet" href="/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/feather/feather.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/mdi/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/typicons/typicons.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
     <!-- endinject -->
     <!-- Plugin css for this page -->
-    <link rel="stylesheet" href="/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
-    <link rel="stylesheet" type="text/css" href="/assets/js/select.dataTables.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+    <link rel="stylesheet" type="text/css" href="<?= BASE_URL ?>/assets/js/select.dataTables.min.css">
     <!-- End plugin css for this page -->
     <!-- inject:css -->
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
     <!-- endinject -->
-    <link rel="shortcut icon" href="/assets/images/favicon.png" />
+    <link rel="shortcut icon" href="<?= BASE_URL ?>/assets/images/favicon.png" />
 
-    <link rel="stylesheet" href="path-to/node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.min.css" />
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/perfect-scrollbar.min.css" />
 </head>
 
 <body class="with-welcome-text">
@@ -39,9 +39,9 @@
                     </button>
                 </div>
                 <div>
-                    <a href="/" class="navbar-brand brand-logo">ReliefFlow</a>
+                    <a href="<?= BASE_URL ?>/" class="navbar-brand brand-logo">ReliefFlow</a>
 
-                    <a href="/" class="navbar-brand brand-logo-mini" href="/">
+                    <a href="<?= BASE_URL ?>/" class="navbar-brand brand-logo-mini" href="<?= BASE_URL ?>/">
                         RF
                     </a>
                 </div>
@@ -61,7 +61,7 @@
             <nav class="sidebar sidebar-offcanvas" id="sidebar">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">
+                        <a class="nav-link" href="<?= BASE_URL ?>/">
                             <i class="mdi mdi-grid-large menu-icon"></i>
                             <span class="menu-title">Dashboard</span>
                         </a>
@@ -75,8 +75,8 @@
                         </a>
                         <div class="collapse" id="form-elements">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"><a class="nav-link" href="/formBesoin">Besoin</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/formDons">Dons</a></li>
+                                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formBesoin">Besoin</a></li>
+                                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/formDons">Dons</a></li>
                             </ul>
                         </div>
                     </li>
@@ -128,7 +128,7 @@
                                                                                     echo '</div>';
                                                                                 }
                                                                             ?>
-                                                                            <form action="/besoinVille/add-multiple" method="POST" id="multiBesoinForm">
+                                                                            <form action="<?= BASE_URL ?>/besoinVille/add-multiple" method="POST" id="multiBesoinForm">
                                                                                 <div class="form-group">
                                                                                     <label for="ville">Ville</label>
                                                                                     <select class="form-control" id="ville" name="ville" required>
@@ -199,28 +199,28 @@
     </div>
     <!-- container-scroller -->
     <!-- plugins:js -->
-    <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/js/vendor.bundle.base.js"></script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/js/vendor.bundle.base.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
-    <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/chart.js/chart.umd.js"></script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/chart.js/chart.umd.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/vendors/progressbar.js/progressbar.min.js"></script>
     <!-- End plugin js for this page -->
     <!-- inject:js -->
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/off-canvas.js"></script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/template.js"></script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/settings.js"></script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/hoverable-collapse.js"></script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/todolist.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/off-canvas.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/template.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/settings.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/hoverable-collapse.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/todolist.js"></script>
     <!-- endinject -->
     <!-- Custom js for this page-->
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/jquery.cookie.js" type="text/javascript"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/jquery.cookie.js" type="text/javascript"></script>
 
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/dashboard.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/dashboard.js"></script>
     <script nonce="<?= $csp_nonce ?>">
         var sinistreChartData = <?= json_encode($sinistreChartData ?? []) ?>;
     </script>
-    <script nonce="<?= $csp_nonce ?>" src="/assets/js/my_script.js"></script>
+    <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/my_script.js"></script>
     <script nonce="<?= $csp_nonce ?>">
         (function(){
             const addBtn = document.getElementById('addBesoinRow');
@@ -234,7 +234,7 @@
             });
         })();
     </script>
-    <!-- <script nonce = "<?= $csp_nonce ?>" src="/assets/js/Chart.roundedBarCharts.js"></script> -->
+    <!-- <script nonce = "<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/Chart.roundedBarCharts.js"></script> -->
     <!-- End custom js for this page-->
 </body>
 
