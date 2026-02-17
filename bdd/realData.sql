@@ -3,10 +3,10 @@ insert into ville (nom) values
 ('Mananjary'),
 ('Farafangana'),
 ("Nosy Be"),
-("Morondava"),
+("Morondava");
 
 
-insert into typeDon (nom) values
+insert into typeDons (nom) values
 ('nature'),
 ('materiaux'),
 ('argent');
@@ -33,7 +33,6 @@ insert into besoinsVille (idVille, ordre,idModeleDons, date_, quantite, prixUnit
 (2, 25 , 7 , '2026-02-16 16:00:00', 6000, 120.00),
 (2, 6  , 8 , '2026-02-15 17:00:00', 25000, 80.00),
 (2, 19 , 9 , '2026-02-16 18:00:00', 8000, 60.00),
-
 (2, 17 , 1 , '2026-02-15 10:00:00', 1, 60000.00),
 (3, 4  , 2 , '2026-02-16 11:00:00', 3000, 600.00),
 (3, 23 , 3 ,  '2026-02-15 12:00:00', 1000, 1000.00),
@@ -43,7 +42,6 @@ insert into besoinsVille (idVille, ordre,idModeleDons, date_, quantite, prixUnit
 (4, 25 , 7 , '2026-02-15 16:00:00', 3000, 300.00),
 (4, 6  , 8 , '2026-02-15 16:00:00', 4000, 200.00),
 (4, 19 , 9 , '2026-02-16 15:00:00', 25000, 40.00),
-
 (4, 17 , 1 , '2026-02-16 10:00:00', 8000, 30.00),
 (4, 4  , 2, '2026-02-15 11:00:00', 1, 4000000.00),
 (5, 23 , 3 , '2026-02-16 12:00:00', 3000, 700.00),
