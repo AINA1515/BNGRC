@@ -63,6 +63,7 @@ class DonsModel
                     'idTypeDons' => $type,
                     'quantite' => (int)($d['quantite'] ?? 0),
                     'prixUnitaire' => $d['prixUnitaire'] ?? null,
+                    'date_' => isset($d['date_']) ? $d['date_'] : null,
                 ];
             } else {
                 // pick smallest id as representative
@@ -70,6 +71,15 @@ class DonsModel
                 $groups[$key]['quantite'] += (int)($d['quantite'] ?? 0);
                 // keep first prixUnitaire if existing
                 if (empty($groups[$key]['prixUnitaire']) && !empty($d['prixUnitaire'])) $groups[$key]['prixUnitaire'] = $d['prixUnitaire'];
+                // pick a representative date: keep the most recent date_
+                if (!empty($d['date_'])) {
+                    $existing = $groups[$key]['date_'] ?? null;
+                    $existingTs = $existing ? strtotime($existing) : 0;
+                    $newTs = strtotime($d['date_']);
+                    if ($newTs !== false && $newTs > $existingTs) {
+                        $groups[$key]['date_'] = $d['date_'];
+                    }
+                }
             }
         }
         // return as indexed array
@@ -109,8 +119,9 @@ class DonsModel
      * Arrays must be same length and values aligned by index.
      * Returns array with counts: ['inserted' => n, 'failed' => m]
      */
-    public static function addMultiple(array $noms, array $types, array $quantites)
+    public static function addMultiple(array $noms, array $types, array $quantites, array $dates = [])
     {
+        // number of rows to process should be limited by the core arrays (names/types/quantites)
         $count = min(count($noms), count($types), count($quantites));
         $inserted = 0;
         $failed = 0;
@@ -118,22 +129,36 @@ class DonsModel
         $db = Flight::db();
         try {
             $db->beginTransaction();
-            $query = "INSERT INTO dons (nom, idTypeDons, quantite) VALUES (:nom, :idTypeDons, :quantite)";
+            $query = "INSERT INTO dons (nom, idTypeDons, quantite, date_) VALUES (:nom, :idTypeDons, :quantite, :date_)";
             $stmt = $db->prepare($query);
             for ($i = 0; $i < $count; $i++) {
                 $nom = trim($noms[$i]);
                 $type = isset($types[$i]) ? (int)$types[$i] : 0;
                 $qte = isset($quantites[$i]) ? (int)$quantites[$i] : 0;
+                // allow passing date array by index if provided
                 // skip entries with no valid type to avoid FK errors
                 if ($type <= 0) {
                     $skipped++;
                     continue;
                 }
 
+                // date handling: if a date was provided in $_POST['date'], use it; otherwise use NOW()
+                $dateParam = null;
+                if (isset($dates[$i]) && trim($dates[$i]) !== '') {
+                    $d = trim($dates[$i]);
+                    $ts = strtotime($d);
+                    if ($ts !== false) $dateParam = date('Y-m-d H:i:s', $ts);
+                }
+                // default to now if no valid date provided
+                if ($dateParam === null) {
+                    $dateParam = date('Y-m-d H:i:s');
+                }
+
                 $params = [
                     ':nom' => $nom,
                     ':idTypeDons' => $type,
-                    ':quantite' => $qte
+                    ':quantite' => $qte,
+                    ':date_' => $dateParam
                 ];
                 if ($stmt->execute($params)) {
                     $inserted++;

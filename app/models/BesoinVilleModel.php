@@ -39,10 +39,10 @@ class BesoinVilleModel
     }
 
 
-    public static function addBesoin($idVille, $idDons, $quantite, $prixUnitaire)
+    public static function addBesoin($idVille, $idDons, $quantite, $prixUnitaire, $date = null)
     {
         // idTypeDons removed from besoinsVille; it's derived from dons when needed
-        $query = "INSERT INTO besoinsVille (idVille, idDons, quantite, prixUnitaire) VALUES (:idVille, :idDons, :quantite, :prixUnitaire)";
+        $query = "INSERT INTO besoinsVille (idVille, idDons, quantite, prixUnitaire, date_) VALUES (:idVille, :idDons, :quantite, :prixUnitaire, :date_)";
         $stmt = Flight::db()->prepare($query);
         // bind values with proper types; prixUnitaire may be null or numeric
         $stmt->bindValue(':idVille', (int)$idVille, \PDO::PARAM_INT);
@@ -54,6 +54,14 @@ class BesoinVilleModel
             // store as string/decimal format
             $stmt->bindValue(':prixUnitaire', (string)$prixUnitaire, \PDO::PARAM_STR);
         }
+        // date: provided by caller or default to now
+        if ($date === null || trim($date) === '') {
+            $stmt->bindValue(':date_', date('Y-m-d H:i:s'));
+        } else {
+            $ts = strtotime($date);
+            $stmt->bindValue(':date_', $ts === false ? date('Y-m-d H:i:s') : date('Y-m-d H:i:s', $ts));
+        }
+
         $ok = $stmt->execute();
         if (!$ok) {
             // log diagnostic info for debugging
@@ -232,7 +240,8 @@ class BesoinVilleModel
                     'quantite' => $initial,
                     'donnee' => $donnee,
                     'restant' => $restant,
-                    'prixUnitaire' => $b['prixUnitaire'] ?? null
+                    'prixUnitaire' => $b['prixUnitaire'] ?? null,
+                    'date_' => $b['date_'] ?? null
                 ];
             }
         }
@@ -328,7 +337,7 @@ class BesoinVilleModel
             }
         }
 
-        // group besoins by groupKey
+        // group besoins by groupKey and collect their metadata (id, initial, date)
         $besoinsByGroup = [];
         if (is_array($besoins)) {
             foreach ($besoins as $b) {
@@ -336,21 +345,33 @@ class BesoinVilleModel
                 $donId = isset($b['idDons']) ? (int)$b['idDons'] : 0;
                 $gkey = $donIdToGroup[$donId] ?? null;
                 if ($gkey === null) continue;
+                $dateRaw = $b['date_'] ?? null;
+                // parse date to timestamp; treat invalid/missing dates as very new so they are filled last
+                $ts = false;
+                if (!empty($dateRaw)) $ts = strtotime($dateRaw);
+                if ($ts === false || $ts === null) $ts = PHP_INT_MAX;
                 if (!isset($besoinsByGroup[$gkey])) $besoinsByGroup[$gkey] = [];
-                $besoinsByGroup[$gkey][] = $bid;
+                $besoinsByGroup[$gkey][] = [
+                    'id' => $bid,
+                    'initial' => $resultMap[$bid]['initial'] ?? 0,
+                    'date_ts' => $ts,
+                ];
             }
         }
 
-        // allocate per group across its besoins (oldest besoins first)
-        foreach ($besoinsByGroup as $gkey => $bids) {
-            // sort besoins by id ascending to prioritize oldest
-            sort($bids, SORT_NUMERIC);
+        // allocate per group across its besoins (oldest besoins first by date_)
+        foreach ($besoinsByGroup as $gkey => $bitems) {
+            // sort besoins by date timestamp ascending (oldest first), tie-breaker by id
+            usort($bitems, function ($a, $b) {
+                if ($a['date_ts'] === $b['date_ts']) return $a['id'] <=> $b['id'];
+                return $a['date_ts'] <=> $b['date_ts'];
+            });
             $avail = $availableGroup[$gkey] ?? 0;
             $allocatedTotal = 0;
-            foreach ($bids as $bid) {
+            foreach ($bitems as $item) {
                 if ($avail <= 0) break;
-                $needInitial = $resultMap[$bid]['initial'];
-                // allocate up to needInitial but consider that other villes may also need
+                $bid = $item['id'];
+                $needInitial = $item['initial'];
                 $alloc = min($needInitial, $avail);
                 $resultMap[$bid]['sim_donnee'] = $alloc;
                 $avail -= $alloc;
@@ -358,7 +379,8 @@ class BesoinVilleModel
             }
             // remaining group stock after allocation
             $remainingAfter = max(0, ($availableGroup[$gkey] ?? 0) - $allocatedTotal);
-            foreach ($bids as $bid) {
+            foreach ($bitems as $item) {
+                $bid = $item['id'];
                 $resultMap[$bid]['sim_restant'] = $remainingAfter;
             }
             $availableGroup[$gkey] = $remainingAfter;

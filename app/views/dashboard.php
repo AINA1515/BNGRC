@@ -50,7 +50,7 @@
               <i class="menu-arrow"></i>
             </a>
 
-                <div class="collapse" id="formsMenu">
+            <div class="collapse" id="formsMenu">
               <ul class="nav flex-column sub-menu">
 
                 <li class="nav-item">
@@ -111,11 +111,13 @@
                           <tr>
                             <th>Ville</th>
                             <th>Besoin</th>
-                            <th>Départ</th>
-                            <th>Donnée</th>
-                            <th>Restant</th>
-                            <th>Après</th>
+                            <th>Date</th>
+                            <th>depart(besoin)</th>
+                            <th>donation</th>
+                            <th>Restant(dons)</th>
+                            <th>Après(besoins)</th>
                             <th>P.U</th>
+                            <th>P.Total(besoin)</th>
                           </tr>
                         </thead>
 
@@ -124,11 +126,17 @@
                               <tr data-besoin-id="<?= htmlspecialchars($b['id'] ?? '') ?>" data-real-donnee="<?= htmlspecialchars($b['donnee']) ?>" data-real-restant="<?= htmlspecialchars($b['restant']) ?>" data-initial="<?= htmlspecialchars($b['quantite']) ?>">
                                 <td><?= htmlspecialchars($b['nomVille']) ?></td>
                                 <td><?= htmlspecialchars($b['nomDon']) ?></td>
-                                <td class="bs-depart"><?= htmlspecialchars($b['quantite']) ?></td>
+                                <td class="bs-date"><?= htmlspecialchars(isset($b['date_']) ? $b['date_'] : '') ?></td>
+                                <td class="bs-depart"><?= htmlspecialchars(number_format((int)($b['quantite'] ?? 0), 0, '.', ' ')) ?></td>
                                 <td class="bs-donnee">0</td>
-                                <td class="bs-restant"><?= htmlspecialchars($b['restant']) ?></td>
-                                <td class="bs-apres"><?php $initial = (int)($b['quantite'] ?? 0); $realDon = min((int)($b['donnee'] ?? 0), $initial); echo htmlspecialchars($initial - $realDon); ?></td>
-                                <td><?= htmlspecialchars($b['prixUnitaire']) ?></td>
+                                <td class="bs-restant"><?= htmlspecialchars(number_format((int)($b['restant'] ?? 0), 0, '.', ' ')) ?></td>
+                                <td class="bs-apres"><?php $initial = (int)($b['quantite'] ?? 0);
+                                                      $realDon = min((int)($b['donnee'] ?? 0), $initial);
+                                                      echo htmlspecialchars(number_format($initial - $realDon, 0, '.', ' ')); ?></td>
+                                <td><?= htmlspecialchars(number_format((float)($b['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
+                                <?php $bpu = (float)($b['prixUnitaire'] ?? 0);
+                                $btotal = $bpu * ((int)($b['quantite'] ?? 0)); ?>
+                                <td class="text-end"><?= htmlspecialchars(number_format($btotal, 2, '.', ' ')) ?></td>
                               </tr>
                             <?php endforeach;
                           else: ?>
@@ -178,8 +186,10 @@
                       <tr>
                         <th>Nom</th>
                         <th>Type</th>
+                        <th>Date</th>
                         <th>Quantité</th>
                         <th>P.U</th>
+                        <th>P.Total</th>
                       </tr>
                     </thead>
 
@@ -188,8 +198,12 @@
                           <tr>
                             <td><?= htmlspecialchars($d['nom']) ?></td>
                             <td><span class="badge bg-info"><?= htmlspecialchars($d['typeDon']) ?></span></td>
-                            <td><?= htmlspecialchars($d['quantite']) ?></td>
-                            <td><?= $d['prixUnitaire'] ?></td>
+                            <td><?= htmlspecialchars($d['date_'] ?? '') ?></td>
+                            <td><?= htmlspecialchars(number_format((int)($d['quantite'] ?? 0), 0, '.', ' ')) ?></td>
+                            <td><?= htmlspecialchars(number_format((float)($d['prixUnitaire'] ?? 0), 2, '.', ' ')) ?></td>
+                            <?php $dpu = (float)($d['prixUnitaire'] ?? 0);
+                            $dtotal = $dpu * ((int)($d['quantite'] ?? 0)); ?>
+                            <td class="text-end"><?= htmlspecialchars(number_format($dtotal, 2, '.', ' ')) ?></td>
                           </tr>
                         <?php endforeach;
                       else: ?>
@@ -228,17 +242,20 @@
   </script>
   <script nonce="<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/my_script.js"></script> <!-- <script nonce = "<?= $csp_nonce ?>" src="<?= BASE_URL ?>/assets/js/Chart.roundedBarCharts.js"></script> --> <!-- End custom js for this page-->
   <script nonce="<?= $csp_nonce ?>">
-    (function(){
+    (function() {
       const btn = document.getElementById('simulateBtn');
       if (!btn) return;
       const cancelBtn = document.getElementById('cancelSimBtn');
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', function() {
         btn.disabled = true;
         const original = btn.innerHTML;
         btn.innerHTML = 'Simulation en cours...';
         // simple animation: dots
         let dots = 0;
-        const interval = setInterval(()=>{ btn.innerHTML = 'Simulation en cours' + '.'.repeat(dots%4); dots++; }, 400);
+        const interval = setInterval(() => {
+          btn.innerHTML = 'Simulation en cours' + '.'.repeat(dots % 4);
+          dots++;
+        }, 400);
         const statusEl = document.getElementById('simulateStatus');
         if (statusEl) statusEl.innerText = '';
         fetch('<?= BASE_URL ?>/simulate')
@@ -249,35 +266,44 @@
             btn.disabled = false;
             if (cancelBtn) cancelBtn.style.display = 'inline-block';
             // apply simulated values into table
-            if (data && Array.isArray(data.result) && data.result.length>0) {
+            if (data && Array.isArray(data.result) && data.result.length > 0) {
               data.result.forEach(row => {
-                let tr = document.querySelector('tr[data-besoin-id="'+row.id+'"]');
+                let tr = document.querySelector('tr[data-besoin-id="' + row.id + '"]');
                 if (!tr) {
                   // fallback: find by ville+don text
                   const rows = Array.from(document.querySelectorAll('table.table tbody tr'));
                   tr = rows.find(r => {
                     const villeText = r.children[0] && r.children[0].innerText.trim();
                     const donText = r.children[1] && r.children[1].innerText.trim();
-                    return villeText === row.idVille.toString() || donText === row.idDons.toString() || (villeText+"|"+donText) === ((row.idVille||'')+"|"+(row.idDons||''));
+                    return villeText === row.idVille.toString() || donText === row.idDons.toString() || (villeText + "|" + donText) === ((row.idVille || '') + "|" + (row.idDons || ''));
                   });
                 }
                 if (tr) {
                   const donneeEl = tr.querySelector('.bs-donnee');
                   const restantEl = tr.querySelector('.bs-restant');
-                    const apresEl = tr.querySelector('.bs-apres');
+                  const apresEl = tr.querySelector('.bs-apres');
                   // store simulated values on the row for cancel
                   tr.dataset.simDonnee = row.sim_donnee;
                   tr.dataset.simRestant = row.sim_restant;
-                  if (donneeEl) donneeEl.innerText = row.sim_donnee;
-                  if (restantEl) restantEl.innerText = row.sim_restant;
-                    if (apresEl) {
-                      const initial = parseInt(tr.dataset.initial || '0', 10);
-                      apresEl.innerText = Math.max(0, initial - (row.sim_donnee || 0));
-                    }
+                  // format numbers for readability
+                  const fmtInt = (v) => (typeof v === 'number' ? v : parseInt(v || 0, 10));
+                  const fmtPrice = (v) => (typeof v === 'number' ? v : parseFloat(v || 0));
+                  if (donneeEl) donneeEl.innerText = new Intl.NumberFormat('fr-FR', {
+                    maximumFractionDigits: 0
+                  }).format(fmtInt(row.sim_donnee));
+                  if (restantEl) restantEl.innerText = new Intl.NumberFormat('fr-FR', {
+                    maximumFractionDigits: 0
+                  }).format(fmtInt(row.sim_restant));
+                  if (apresEl) {
+                    const initial = parseInt(tr.dataset.initial || '0', 10);
+                    apresEl.innerText = new Intl.NumberFormat('fr-FR', {
+                      maximumFractionDigits: 0
+                    }).format(Math.max(0, initial - (row.sim_donnee || 0)));
+                  }
                   // highlight change
                   tr.style.transition = 'background-color 0.6s ease';
                   tr.style.backgroundColor = '#fff3cd';
-                  setTimeout(()=> tr.style.backgroundColor = '', 1200);
+                  setTimeout(() => tr.style.backgroundColor = '', 1200);
                 }
               });
             } else {
@@ -294,7 +320,7 @@
 
       // Cancel simulation: revert all rows to initial zeros
       if (cancelBtn) {
-        cancelBtn.addEventListener('click', function(){
+        cancelBtn.addEventListener('click', function() {
           // hide cancel
           cancelBtn.style.display = 'none';
           // reset all rows to the pre-simulation view: Donnee = 0, Restant = original group total
@@ -304,9 +330,15 @@
             const realRestant = tr.dataset.realRestant || tr.dataset.initial || '0';
             const apresEl = tr.querySelector('.bs-apres');
             const initial = parseInt(tr.dataset.initial || '0', 10);
-            if (donneeEl) donneeEl.innerText = '0';
-            if (restantEl) restantEl.innerText = realRestant;
-            if (apresEl) apresEl.innerText = Math.max(0, initial - 0);
+            if (donneeEl) donneeEl.innerText = new Intl.NumberFormat('fr-FR', {
+              maximumFractionDigits: 0
+            }).format(0);
+            if (restantEl) restantEl.innerText = new Intl.NumberFormat('fr-FR', {
+              maximumFractionDigits: 0
+            }).format(parseInt(realRestant, 10) || 0);
+            if (apresEl) apresEl.innerText = new Intl.NumberFormat('fr-FR', {
+              maximumFractionDigits: 0
+            }).format(Math.max(0, initial - 0));
             delete tr.dataset.simDonnee;
             delete tr.dataset.simRestant;
           });

@@ -6,22 +6,21 @@ insert into ville (nom, nbrSinistre, x, y, nbrPopulation) values
 ('Nice', 2, 7.27, 43.70, 342522);
 
 insert into typeDons (nom) values
-('Alimentaire'),
-('Hydratation'),
-('Vêtements'),
-('Autres');
+('nature'),
+('materiaux'),
+('argent');
 
-insert into dons (idTypeDons, nom, quantite, prixUnitaire) values
-(1, 'Riz', 100, 50.00),
-(2, 'Haricot', 200, 30.00),
-(3, 'Eau', 150, 20.00),
-(4, 'Vêtements', 300, 15.00);
+insert into dons (idTypeDons, nom, date_, quantite, prixUnitaire) values
+(1, 'Riz', '2023-10-01 10:00:00', 100, 100000.00),
+(2, 'tole', '2023-10-02 11:00:00', 200, 200000.00),
+(3, 'euro', '2023-10-03 12:00:00', 150, 10.00),
+(1, 'huile', '2023-10-04 13:00:00', 100, 10000);
 
-insert into besoinsVille (idVille, idDons, quantite, prixUnitaire) values
-(1, 1, 100, 50.00),
-(2, 2, 200, 30.00),
-(3, 3, 150, 20.00),
-(4, 4, 300, 15.00);
+insert into besoinsVille (idVille, idDons, date_, quantite, prixUnitaire) values
+(1, 1, '2023-10-01 10:00:00', 100, 100000.00),
+(2, 2, '2023-10-02 11:00:00', 200, 200000.00),
+(3, 3, '2023-10-03 12:00:00', 150, 10.00),
+(4, 4, '2023-10-04 13:00:00', 300, 10000.00);
 
 insert into historiqueDons (idDons, date_, idVille) values
 (1, '2023-10-01 10:00:00', 1),

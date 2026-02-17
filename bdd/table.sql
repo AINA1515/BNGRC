@@ -15,8 +15,9 @@ create table dons(
     id int primary key auto_increment,
     idTypeDons int,
     nom varchar(50),
+    date_ datetime,
     quantite int,
-    prixUnitaire decimal(6,2)
+    prixUnitaire decimal(8,2)
 );
 
 create table typeDons(
@@ -35,8 +36,9 @@ create table besoinsVille(
     id int primary key auto_increment,
     idVille int,
     idDons int,
+    date_ datetime,
     quantite int,
-    prixUnitaire decimal(6,2)
+    prixUnitaire decimal(8,2)
 );
 
 create view vue_besoins_par_ville as
