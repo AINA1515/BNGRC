@@ -1,3 +1,4 @@
+
 <?php
 
 use app\controllers\VilleController;
@@ -396,3 +397,6 @@ $router->get('/simulation', function () use ($app) {
 		'besoinVilles' => $besoinVilles,
 	]);
 });
+
+// Route pour appliquer la simulation
+$router->get('/apply-simulation', [\app\controllers\BesoinVilleController::class, 'applySimulation']);

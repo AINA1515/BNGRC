@@ -31,7 +31,7 @@ create table typeDons(
 create table modeleDons(
     id int primary key auto_increment,
     nom varchar(50) not null,
-    prixUnitaire decimal(8,2) not null,
+    prixUnitaire decimal(15,2) not null,
     idTypeDons int not null,
     foreign key (idTypeDons) references typeDons(id)
 );
@@ -43,7 +43,7 @@ create table dons(
     idModeleDons int not null,
     date_ datetime,
     quantite int,
-    prixUnitaire decimal(8,2),
+    prixUnitaire decimal(15,2),
     foreign key (idModeleDons) references modeleDons(id)
 );
 
@@ -51,16 +51,20 @@ create table historiqueDons(
     id int primary key auto_increment,
     idDons int,
     date_ datetime,
-    idVille int
+    idVille int,
+    quantite int,
+    foreign key (idDons) references dons(id),
+    foreign key (idVille) references ville(id)
 );
 
 create table besoinsVille(
     id int primary key auto_increment,
+    ordre int,
     idVille int,
     idModeleDons int not null,
     date_ datetime,
     quantite int,
-    prixUnitaire decimal(8,2),
+    prixUnitaire decimal(15,2),
     foreign key (idVille) references ville(id),
     foreign key (idModeleDons) references modeleDons(id)
 );
@@ -71,7 +75,7 @@ create table achat(
     date_ datetime,
     quantite int,
     pourcentageAchat decimal(5,2),
-    prixUnitaire decimal(8,2),
+    prixUnitaire decimal(15,2),
     foreign key (idDons) references dons(id)
 );
 
@@ -84,7 +88,7 @@ create table distribution(
     quantiteBesoinRestant int,
     quantiteDonsInitiale int,
     quantiteDonsDistribue int,
-    prixUnitaire decimal(8,2),
+    prixUnitaire decimal(15,2),
     foreign key (idBesoins) references besoinsVille(id),
     foreign key (idVille) references ville(id)
 );

@@ -123,10 +123,11 @@ class DonsModel
         return $ok;
     }
 
-    public static function updateDonation($id, $idModeleDons, $idTypeDons, $quantite = 0, $prixUnitaire = null, $date_ = null)
+    public static function updateDonation($id, $idModeleDons, $idTypeDons, $quantite = 0, $prixUnitaire = null, $date_ = null, $db = null)
     {
+        if ($db === null) $db = \Flight::db();
         $query = "UPDATE dons SET idModeleDons = :idModeleDons, idTypeDons = :idTypeDons, quantite = :quantite, prixUnitaire = :prixUnitaire, date_ = :date_ WHERE id = :id";
-        $stmt = Flight::db()->prepare($query);
+        $stmt = $db->prepare($query);
         return $stmt->execute([
             ':id' => (int)$id,
             ':idModeleDons' => (int)$idModeleDons,
@@ -137,10 +138,16 @@ class DonsModel
         ]);
     }
 
-    public static function deleteDonation($id)
+    public static function deleteDonation($id, $db = null)
     {
+        if ($db === null) $db = \Flight::db();
+        // Delete historiqueDons entries referencing this donation
+        $queryHist = "DELETE FROM historiqueDons WHERE idDons = :id";
+        $stmtHist = $db->prepare($queryHist);
+        $stmtHist->execute([':id' => (int)$id]);
+        // Delete the donation itself
         $query = "DELETE FROM dons WHERE id = :id";
-        $stmt = Flight::db()->prepare($query);
+        $stmt = $db->prepare($query);
         return $stmt->execute([':id' => (int)$id]);
     }
 
